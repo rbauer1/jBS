@@ -20,11 +20,11 @@ public class Driver {
 	static Player p1;
 	static Player p2;
 	static Actions action;
-	static AI ai1;
+	static AI3 ai3;
 	static AI2 ai2;
 	static int debugCount = 0;
-	static int AI1wins = 0;
-	static int AI2wins = 0;
+	static int AI3wins = 1;
+	static int AI2wins = 1;
 	static int AI1average = 0;
 	static int AI2average = 0;
 	
@@ -37,19 +37,20 @@ public class Driver {
 				debugCount++;
 				progressTurn();
 			}
+			System.out.println("In " + debugCount + " turns!");
 			debugCount = 0;
 		}
-//		System.out.println("AI 1");
-//		System.out.println("Number of Wins: " + AI1wins);
-//		System.out.println("Average Turns per win: " + AI1average/AI1wins);
-//		System.out.println("AI 2");
-//		System.out.println("Number of Wins: " + AI2wins);
-//		System.out.println("Average Turns per win: " + AI2average/AI2wins);
+		System.out.println("AI 3");
+		System.out.println("Number of Wins: " + AI3wins);
+		System.out.println("Average Turns per win: " + AI1average/AI3wins);
+		System.out.println("AI 2");
+		System.out.println("Number of Wins: " + AI2wins);
+		System.out.println("Average Turns per win: " + AI2average/AI2wins);
 	}
 	public static void main(String[] args) throws IOException {
 		// Display d = new Display();
 		// action = new Actions();
-		testRun(1);
+		testRun(100000);
 //		initialize();
 //		while (!gameOver()) {
 //			debugCount++;
@@ -63,11 +64,11 @@ public class Driver {
 //			progressTurn();
 //		}
 //		System.out.println(debugCount);
-		System.out.println("AI 1");
-		ai1.printHits();
-		System.out.println();
-		System.out.println("AI 2");
-		ai2.printHits();
+//		System.out.println("AI 1");
+//		ai1.printHits();
+//		System.out.println();
+//		System.out.println("AI 2");
+//		ai2.printHits();
 //		int[][] h = ai1.getAllHits();
 //		for(int i=0; i <12; i++){
 //			for(int j=0; j<16; j++){
@@ -129,7 +130,7 @@ public class Driver {
 		Board b2 = new Board(ships2);
 		p1 = new Player(b1, true, ships);
 		p2 = new Player(b2, false, ships2);
-		ai1 = new AI(p2);
+		ai3 = new AI3(p2, p1);
 		ai2 = new AI2(p1, p2);
 		/*currently the AIs only generate a new board for their NEXT game because of the silly way 
 		 * that things are set up. they each have an identical method called initializeShips() that 
@@ -138,7 +139,7 @@ public class Driver {
 		 * I'm not sure how important it actually is, but it probably should be changed so that they
 		 * generate a new board for their current game, instead of their next one.
 		 */
-		ai1.initializeShips();
+		ai3.initializeShips();
 		ai2.initializeShips();
 		
 		
@@ -157,9 +158,9 @@ public class Driver {
 		if(p2.myTurn()){
 			ai2.attack();
 		}else{
-			ai1.attack();
+			ai3.attack();
 		}
-		current.playerPrintBoard(other);
+//		current.playerPrintBoard(other);
 		p1.changeTurn();
 		p2.changeTurn();
 //		int[][] h = ai1.getAllHits();
@@ -190,10 +191,11 @@ public class Driver {
 //			current = p2;
 //			other = p1;
 //		}
-//		current.playerPrintBoard(other);
+//		
 //		if(p2.myTurn()){
 //			ai2.attack();
 //		}else{
+//			current.playerPrintBoard(other);
 //		System.out.println("Player " + (current.getID() ? 1 : 2));
 //		Scanner sc = new Scanner(System.in);
 //		while (!turnFinished) {
@@ -446,7 +448,7 @@ public class Driver {
 		}
 		if (!p2.isAlive()) {
 			System.out.println("PLAYER 1 WINS!!!");
-			AI1wins++;
+			AI3wins++;
 			AI1average+=debugCount;
 			return true;
 		}

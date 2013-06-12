@@ -9,7 +9,13 @@ import ships.Ships;
 import ships.Ships.ShipType;
 import base.Board.TileStatus;
 
-public class AI2 {
+/**
+ * 6/12/13
+ * @version 3.0.0
+ * @author rbauer
+ * 
+ */
+public class AI3 {
 	private Player pOther;
 	private Player pThis;
 	@SuppressWarnings("unused")
@@ -35,7 +41,7 @@ public class AI2 {
 	 * @param pThis
 	 *            This Player
 	 */
-	public AI2(Player pOther, Player pThis) {
+	public AI3(Player pOther, Player pThis) {
 		this.pOther = pOther;
 		this.pThis = pThis;
 		hits = new int[12][16];
@@ -179,9 +185,9 @@ public class AI2 {
 		}
 		// conditional check for existent possibleShip.
 		if (possibleShip[0] == -1) {
-			return null;
-		} else
-			return possibleShip;
+			possibleShip[2] = -1;
+		}
+		return possibleShip;
 	}
 
 	/**
@@ -195,6 +201,8 @@ public class AI2 {
 	 * might be able to be changed to !=0 instead of < 0
 	 */
 	private void removeDeadSpaces() {
+		// This value determines the length of the smallest remaining ship
+		smallestRemainingShip = pOther.getSmallestRemainingShip();
 		for (int i = 1; i < hits.length - 1; i++) {
 			for (int j = 1; j < hits[0].length - 1; j++) {
 				if (hits[i][j] == 0) {
@@ -319,17 +327,45 @@ public class AI2 {
 				}
 			}
 		}
+		//does not create a new SubScanForAI because it is used to eliminate
+		//ambiguous spaces from lastSubScan.
+		
+		//POSSIBLY SHOULD CREATE NEW SubScanForAI IF ANOTHER SHIP IS FOUND
+		//SOMETHING TO CONSIDER
 	}
 
+	/**
+	 * Backbone of the AI <br />
+	 * This method initiates all other actions by the AI including:
+	 * <ul>
+	 * <li>Updating smallestRemainingShip</li>
+	 * <li>Getting the latest copy of the opponent's <i>Board</i></li>
+	 * <li>Removing dead spaces from this AI's hit matrix</li>
+	 * <li>Deciding whether to scan with sub (implemented) or aircraft (not yet
+	 * implemented), fire missiles (not yet implemented), move aircraft (not yet
+	 * implemented), fire at aircraft (not yet implemented), or fire a regular
+	 * shot (implemented)</li>
+	 * <li>Determining where to fire the next shot (possibly should be moved to
+	 * a separate method)</li>
+	 * <li>Updating the current hit matrix to account for changes made during
+	 * this turn</li>
+	 * </ul>
+	 * 
+	 */
 	public void attack() {
-		smallestRemainingShip = pOther.getSmallestRemainingShip();
 		board = pOther.getPlayerStatusBoard();
 		removeDeadSpaces();
 		Random gen = new Random();
-		if (findHits() == null) {
-			if (!pThis.getSub().isThisShipSunk()) {
+		// This array either holds the last ship hit
+		// pos[2]==1, the location of possible ship from
+		// a subscan pos[2]==2, or nothing because there
+		// is no useful ship location currently in the
+		// hit matrix pos[2]==-1
+		int[] pos = findHits();
+		if (pos[2] == -1) { // No useful information regarding ships whereabouts
+			if (!pThis.getSub().isThisShipSunk()) { //if sub alive, scan
 				subScan();
-			} else {
+			} else { //if sub dead, fire randomly
 				int x = gen.nextInt(14) + 1;
 				int y = gen.nextInt(10) + 1;
 				while (hits[y][x] != 0) {
@@ -347,14 +383,16 @@ public class AI2 {
 				}
 			}
 		} else {
-			int[] pos = findHits();
 			if (pos[2] == 2) {
-//				if (!pThis.getSub().isThisShipSunk() && lastSubScan.getRelevance()
-//						&& lastSubScan.update(hits)) {
-//					subScan(lastSubScan.getCenterCoords()[0],
-//							lastSubScan.getCenterCoords()[1]);
-//
-//				} else {
+				//check if there is a preexising subscan with possible ships located
+				//then check if a ship has been sunk in that 
+				if (!pThis.getSub().isThisShipSunk()
+						&& lastSubScan.getRelevance()
+						&& lastSubScan.update(hits)) {
+					subScan(lastSubScan.getCenterCoords()[0],
+							lastSubScan.getCenterCoords()[1]);
+
+				} else {
 					switch (Actions.attack(pOther, pos[1], pos[0])) {
 					case 0:
 						hits[pos[0]][pos[1]] = -1;
@@ -363,7 +401,7 @@ public class AI2 {
 						hits[pos[0]][pos[1]] = determineShip(pos[1], pos[0]);
 						break;
 					}
-//				}
+				}
 			} else {
 				if (lastHit == -1) {
 					boolean repeat = true;
