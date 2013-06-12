@@ -1,0 +1,37 @@
+package ships;
+
+import base.Actions;
+import base.Player;
+
+public class AircraftCarrier extends Ships {
+	public AircraftCarrier(int x, int y, int orientation){
+		hp=5;
+		position[0] = x;
+		position[1] = y;
+		position[2] = orientation;
+		position[3] = 5;
+		numMissiles=2;
+		type = Ships.ShipType.AIRCRAFTCARRIER;
+	}
+	public boolean fireMissile(Player other, int x, int y, int config){
+		if(x<2 || x>13 || y<2 || y>9 || config<1 || config>2 || numMissiles==0){
+			return false;
+		}else{
+			if (config == 1) {
+				Actions.attack(other, x, y);
+				Actions.attack(other, x + 1, y + 1);
+				Actions.attack(other, x + 1, y - 1);
+				Actions.attack(other, x - 1, y + 1);
+				Actions.attack(other, x - 1, y - 1);
+			}else{			
+			Actions.attack(other, x, y);
+			Actions.attack(other, x + 1, y);
+			Actions.attack(other, x, y - 1);
+			Actions.attack(other, x - 1, y);
+			Actions.attack(other, x, y + 1);
+			}
+			numMissiles--;
+			return true;
+		}
+	}
+}
