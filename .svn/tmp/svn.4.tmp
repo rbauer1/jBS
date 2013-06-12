@@ -1,0 +1,135 @@
+package base;
+
+import ships.Ships.ShipType;
+import base.Board.TileStatus;
+
+public class Actions {
+	public Actions() {
+
+	}
+
+	/**
+	 * @param p
+	 *            player being attacked
+	 * @param x
+	 *            coord
+	 * @param y
+	 *            coord
+	 * @return -1: if invalid coordinates, 0: if miss, and 1: if hit
+	 */
+	public static int attack(Player p, int x, int y) {
+		if (x < 1 || x > 14 || y < 1 || y > 10
+				|| p.getPlayerStatusBoard()[y][x] == TileStatus.INVALID) {
+			// System.out.println("INVALID LOCATION");
+			return -1;
+		} else {
+			System.out.println(x + " " +  y);
+			if (p.getPlayerStatusBoard()[y][x] == TileStatus.SHIP
+					|| p.getPlayerStatusBoard()[y][x] == TileStatus.SUBSCANSHIP
+					|| p.getPlayerStatusBoard()[y][x] == TileStatus.AIRCRAFTSCAN) {
+				p.updateBoard(x, y, TileStatus.HIT);
+				if (p.getPlayerShipBoard()[y][x][1] == ShipType.AIRCRAFT1
+						&& !p.getAir(1).launched()) {
+					p.getAir(1).hitUpdate();
+				}
+				if (p.getPlayerShipBoard()[y][x][1] == ShipType.AIRCRAFT2
+						&& !p.getAir(2).launched()) {
+					p.getAir(2).hitUpdate();
+				}
+				// System.out.println("HIT");
+				return 1;
+			} else {
+				if (p.getPlayerStatusBoard()[y][x] == TileStatus.EMPTY
+						|| p.getPlayerStatusBoard()[y][x] == TileStatus.SUBSCANEMPTY
+						|| p.getPlayerStatusBoard()[y][x] == TileStatus.AIRCRAFTSCANEMPTY) {
+					p.updateBoard(x, y, TileStatus.MISS);
+					// System.out.println("MISS");
+					return 0;
+				}
+				// System.out.println("INVALID LOCATION");
+				return -1;
+			}
+		}
+		// fires a standard shot at space x,y
+		// Player p refers to player being FIRED UPON.
+	}
+
+	public static boolean moveAir(Player p, int num, int x, int y) {
+		if (x < 1 || x > 14 || y < 1 || y > 10) {
+			return false;
+		} else {
+			if (num == 1 || num == 2) {
+				if (p.getAir(num).isThisShipSunk()) {
+					return false;
+				}
+				int check = (num + 1) % 3;
+				int oldX = p.getAir(num).getPosition()[0];
+				int oldY = p.getAir(num).getPosition()[1];
+				if (p.getAir(check).getPosition()[0] == y
+						&& p.getAir(check).getPosition()[1] == x) {
+					return false;
+				}
+				p.getAir(num).move(x, y);
+				p.getPlayerBoard().updtateAirPositions(oldY, oldX);
+				return true;
+			} else
+				return false;
+		}
+	}
+
+	public static boolean antiAircraft(Player p, int x, int y) {
+		if (x < 0 || x > 14 || y < 0 || y > 10) {
+			return false;
+		} else {
+			int a1x = p.getAir(1).getPosition()[1];
+			int a1y = p.getAir(1).getPosition()[0];
+			int a2x = p.getAir(2).getPosition()[1];
+			int a2y = p.getAir(2).getPosition()[0];
+			if (x == a1x && y == a1y) {
+				p.getAir(1).hitUpdate();
+			}
+			if (x == a2x && y == a2y) {
+				p.getAir(2).hitUpdate();
+			}
+		}
+		return true;
+	}
+
+	// if(isSunk){
+	// ap.setMessage(Color.ORANGE, null,
+	// "Cannot fire missile: destroyer destroyed");
+	// return;
+	// }
+	// if (numMissiles == 0 || (missileConf != 1 && missileConf != 2)) {
+	// ap.setMessage(Color.YELLOW, null,
+	// "Cannot fire missile: destroyer out of missiles");
+	// return;
+	// }
+	// boolean hit = false;
+	// if (missileConf == 1) {
+	// if (m.attack(x, y)) hit = true;
+	// if (m.attack(x + 1, y)) hit = true;
+	// if (m.attack(x - 1, y)) hit = true;
+	// if(hit){
+	// ap.setMessage(Color.RED, null, "HIT!");
+	// }
+	// else{
+	// ap.setMessage(Color.WHITE, null, "MISS!");
+	// }
+	// hit=false;
+	// }
+	// if (missileConf == 2) {
+	// if (m.attack(x, y)) hit = true;
+	// if (m.attack(x, y - 1)) hit = true;
+	// if (m.attack(x, y + 1)) hit = true;
+	// if(hit){
+	// ap.setMessage(Color.RED, null, "HIT!");
+	// }
+	// else{
+	// ap.setMessage(Color.WHITE, null, "MISS!");
+	// }
+	// hit=false;
+	// }
+	// numMissiles--;
+	// return;
+}
