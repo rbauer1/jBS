@@ -23,8 +23,8 @@ public class Driver {
 	static AI ai1;
 	static AI ai2;
 	static int debugCount = 0;
-	static int AI1wins = 1;
-	static int AI2wins = 1;
+	static int AI1wins = 0;
+	static int AI2wins = 0;
 	static int AI1average = 0;
 	static int AI2average = 0;
 	private static TestObject testObject;
@@ -47,11 +47,15 @@ public class Driver {
 			}
 		}
 		System.out.println(ai1.getName());
-		System.out.println("Number of Wins: " + --AI1wins);
-		System.out.println("Average Turns per win: " + AI1average/AI1wins);
-		System.out.println(ai1.getName());
-		System.out.println("Number of Wins: " + --AI2wins);
-		System.out.println("Average Turns per win: " + AI2average/AI2wins);
+		System.out.println("Number of Wins: " + AI1wins);
+		if(AI1wins>0){
+				System.out.println("Average Turns per win: " + AI1average/AI1wins);
+		}
+		System.out.println(ai2.getName());
+		System.out.println("Number of Wins: " + AI2wins);
+		if(AI2wins>0){
+			System.out.println("Average Turns per win: " + AI2average/AI2wins);
+		}
 	}
 	public static void main(String[] args) throws IOException {
 		// Display d = new Display();
@@ -60,7 +64,6 @@ public class Driver {
 		testObject = tp.getTestObject();
 		System.out.println("It's Done!");
 		testRun(testObject.getNumberOfTestRuns());
-//		testRun(100000); //********************************************
 //		initialize();
 //		while (!gameOver()) {
 //			debugCount++;
@@ -72,19 +75,6 @@ public class Driver {
 //				e.printStackTrace();
 //			}
 //			progressTurn();
-//		}
-//		System.out.println(debugCount);
-//		System.out.println("AI 1");
-//		ai1.printHits();
-//		System.out.println();
-//		System.out.println("AI 2");
-//		ai2.printHits();
-//		int[][] h = ai1.getAllHits();
-//		for(int i=0; i <12; i++){
-//			for(int j=0; j<16; j++){
-//				System.out.print(h[i][j] + " ");
-//			}
-//			System.out.println();
 //		}
 	}
 
@@ -219,10 +209,12 @@ public class Driver {
 			ai1.attack();
 		}
 		if(testObject.isDisplayBoardsTurn()){
-			current.playerPrintBoard(other);			
+			current.playerPrintBoard(other);
+			System.out.println("-------------------------------------------");
 		}
 		p1.changeTurn();
 		p2.changeTurn();
+		
 	}
 
 //	public static void progressTurn() {
@@ -357,154 +349,5 @@ public class Driver {
 //		System.out.println("-------------------------------------------");
 //	}
 	
-
-	
-	
-
-	// public void createShips(){
-	// }
 }
 
-//public static void progressTurn() {
-//Player current;
-//Player other;
-//int x;
-//int y;
-//int config = 1;
-//int shipIndex;
-//boolean turnFinished = false;
-//if (p1.myTurn()) {
-//	current = p1;
-//	other = p2;
-//} else {
-//	current = p2;
-//	other = p1;
-//}
-//if(p2.myTurn()){
-//	ai2.attack();
-//}else{
-//current.playerPrintBoard(other);
-//System.out.println("Player " + (current.getID() ? 1 : 2));
-//Scanner sc = new Scanner(System.in);
-//while (!turnFinished) {
-//	System.out.print("Select Option: ");
-//	int choice = sc.nextInt();
-//	switch (choice) {
-//	case 1:
-//		System.out.print("x coord: ");
-//		x = sc.nextInt();
-//		System.out.print("y coord: ");
-//		y = sc.nextInt();
-//		if (Actions.attack(other, x, y) != -1) {
-//			turnFinished = true;
-//		}
-//		break;
-//
-//	case 2:
-//		System.out.println("AircraftCarrier = 0, Battleship = 1,"
-//				+ '\n' + "Destroyer = 2, Submarine = 3");
-//		System.out.print("Choose Ship: ");
-//		shipIndex = sc.nextInt();
-//		while (shipIndex < 0 || shipIndex > 3) {
-//			System.out.print("Choose Ship: ");
-//			shipIndex = sc.nextInt();
-//		}
-//		if (!current.getShip(shipIndex).canFireMissile()) {
-//			break;
-//		}
-//		if (shipIndex != 1) {
-//			System.out.print("Missile Type: ");
-//			config = sc.nextInt();
-//			while (config < 1 || config > 2) {
-//				System.out.print("Missile Type: ");
-//				config = sc.nextInt();
-//			}
-//		}
-//		System.out.print("x coord: ");
-//		x = sc.nextInt();
-//		System.out.print("y coord: ");
-//		y = sc.nextInt();
-//		if (current.getShip(shipIndex).fireMissile(other, x, y, config)) {
-//			turnFinished = true;
-//		}
-//		break;
-//
-//	case 3:
-//		System.out
-//				.println("Sub scan = 3, Aircraft1 scan = 5, Aircraft2 scan = 6");
-//		// Insert actual choose ship after aircraft implemented
-//		shipIndex = sc.nextInt();
-//		if (shipIndex != 3 && shipIndex != 5 && shipIndex != 6) {
-//			break;
-//		}
-//		if (current.getShip(shipIndex).isThisShipSunk()) {
-//			break;
-//		}
-//		if (shipIndex == 5) {
-//			System.out.print("Scan configuration: ");
-//			config = sc.nextInt();
-//			if (current.getAir(1).scan(other, config) != -1) {
-//				turnFinished = true;
-//			}
-//		} else if (shipIndex == 6) {
-//			System.out.print("Scan configuration: ");
-//			config = sc.nextInt();
-//			if (current.getAir(2).scan(other, config) != -1) {
-//				turnFinished = true;
-//			}
-//		} else {
-//			System.out.print("x coord: ");
-//			x = sc.nextInt();
-//			System.out.print("y coord: ");
-//			y = sc.nextInt();
-//			if (current.getSub().scan(other, x, y) != -1) {
-//				turnFinished = true;
-//			}
-//		}
-//		break;
-//	case 4:
-//		System.out.println("Choose Aircraft to Move (1 or 2)");
-//		shipIndex = sc.nextInt();
-//		System.out.print("x coord: ");
-//		x = sc.nextInt();
-//		System.out.print("y coord: ");
-//		y = sc.nextInt();
-//		if (Actions.moveAir(current, shipIndex, x, y)) {
-//			turnFinished = true;
-//		}
-//		break;
-//	case 5:
-//		System.out.println("Choose Anti-Aircraft Firing Coordinates");
-//		System.out.print("x coord: ");
-//		x = sc.nextInt();
-//		System.out.print("y coord: ");
-//		y = sc.nextInt();
-//		if(Actions.antiAircraft(other, x, y)){
-//			turnFinished = true;
-//		}
-//		break;
-//	default:
-//		System.out.println("No quitting!");
-//		turnFinished = false;
-//		break;
-//	}
-//}
-//}
-//// current.playerPrintBoard(other);
-//p1.changeTurn();
-//p2.changeTurn();
-//System.out.println("-------------------------------------------");
-//}
-
-// System.out.println("Aircraft Carrier: x y orientation (0=horizontal)" +
-// '\n');
-// AircraftCarrier ac = new AircraftCarrier(sc.nextInt(), sc.nextInt(),
-// sc.nextInt());
-// System.out.println("Battleship: x y orientation (0=horizontal)" + '\n');
-// Battleship bs = new Battleship(sc.nextInt(), sc.nextInt(), sc.nextInt());
-// System.out.println("Destroyer: x y orientation (0=horizontal)" + '\n');
-// Destroyer de = new Destroyer(sc.nextInt(), sc.nextInt(), sc.nextInt());
-// System.out.println("Submarine: x y orientation (0=horizontal)" + '\n');
-// Submarine sub = new Submarine(sc.nextInt(), sc.nextInt(), sc.nextInt());
-// System.out.println("Patrol Boat: x y orientation (0=horizontal)" + '\n');
-// PatrolBoat pb = new PatrolBoat(sc.nextInt(), sc.nextInt(), sc.nextInt());
