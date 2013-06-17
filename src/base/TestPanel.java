@@ -4,6 +4,8 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -68,9 +70,9 @@ public class TestPanel extends JFrame {
 		 * involve changing the actual code of the program
 		 */
 		firstAIChoice = new JComboBox(AIName.values());
-		firstAIChoice.setSelectedIndex(0);
+		firstAIChoice.setSelectedIndex(AIName.values().length-1);
 		secondAIChoice = new JComboBox(AIName.values());
-		secondAIChoice.setSelectedIndex(0);
+		secondAIChoice.setSelectedIndex(AIName.values().length-1);
 		// AIChoices.addActionListener(new ActionListener(){
 		// public void
 		// });
@@ -89,26 +91,42 @@ public class TestPanel extends JFrame {
 	}
 
 	private void setListeners() {
-		displayShipsSunkToggle.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				displayShipsSunk = true;
-			}
-		});
-		displayHitBoardsToggle.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				displayHitBoards = true;
-			}
-		});
-		displayBoardsToggle.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				displayBoards = true;
-			}
-		});
-		includePlayerToggle.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				includePlayer = true;
-			}
-		});
+		displayShipsSunkToggle.addItemListener(new ItemListener() {
+			   public void itemStateChanged(ItemEvent ev) {
+				      if(ev.getStateChange()==ItemEvent.SELECTED){
+				    	  displayShipsSunk = true;
+				      } else if(ev.getStateChange()==ItemEvent.DESELECTED){
+				    	  displayShipsSunk = false;
+				      }
+				   }
+				});
+		displayHitBoardsToggle.addItemListener(new ItemListener() {
+			   public void itemStateChanged(ItemEvent ev) {
+				      if(ev.getStateChange()==ItemEvent.SELECTED){
+				    	  displayHitBoards = true;
+				      } else if(ev.getStateChange()==ItemEvent.DESELECTED){
+				    	  displayHitBoards = false;
+				      }
+				   }
+				});
+		displayBoardsToggle.addItemListener(new ItemListener() {
+			   public void itemStateChanged(ItemEvent ev) {
+				      if(ev.getStateChange()==ItemEvent.SELECTED){
+				    	  displayBoards = true;
+				      } else if(ev.getStateChange()==ItemEvent.DESELECTED){
+				    	  displayBoards = false;
+				      }
+				   }
+				});
+		includePlayerToggle.addItemListener(new ItemListener() {
+			   public void itemStateChanged(ItemEvent ev) {
+				      if(ev.getStateChange()==ItemEvent.SELECTED){
+				    	  includePlayer = true;
+				      } else if(ev.getStateChange()==ItemEvent.DESELECTED){
+				    	  includePlayer = false;
+				      }
+				   }
+				});
 		runButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int runs;

@@ -54,7 +54,7 @@ public class Player {
 	 * @return <b>Aircraft</b> either 1 or 2 based on <b>i</b> 
 	 */
 	public Aircraft getAir(int i){
-		if(i <1) i=1;
+		if(i <=1) i=1;
 		if(i >1) i=2;
 		return (Aircraft)ships[4+i];
 	}
