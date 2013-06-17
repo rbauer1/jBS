@@ -15,9 +15,10 @@ import base.Board.TileStatus;
  * @author rbauer
  * 
  */
-public class AI3 {
+public class AI3 implements AI{
 	private Player pOther;
 	private Player pThis;
+	private String name = "AI 3";
 	@SuppressWarnings("unused")
 	// ?
 	private TileStatus[][] board;
@@ -579,6 +580,10 @@ public class AI3 {
 
 	public int[][] getAllHits() {
 		return hits;
+	}
+	
+	public String getName(){
+		return name;
 	}
 
 	public void printHits() {

@@ -9,9 +9,10 @@ import ships.Ships;
 import ships.Ships.ShipType;
 import base.Board.TileStatus;
 
-public class AI2 {
+public class AI2 implements AI{
 	private Player pOther;
 	private Player pThis;
+	private String name = "AI 2";
 	@SuppressWarnings("unused")
 	// ?
 	private TileStatus[][] board;
@@ -541,6 +542,10 @@ public class AI2 {
 
 	public int[][] getAllHits() {
 		return hits;
+	}
+	
+	public String getName(){
+		return name;
 	}
 
 	public void printHits() {
