@@ -80,10 +80,14 @@ public class Board {
 			shipHit = -1;
 			break;
 		}
-		// System.out.println(shipHit);
 		if (shipHit != -1) {
-			ships[shipHit].hitUpdate();
-//			shipBoard[y][x][z] = ShipType.NULL;
+			ShipType hitShip = ships[shipHit].hitUpdate();
+			/*The method in Driver that is called here should be removed once a real GUI is created
+			* I think
+			*/
+			if(!hitShip.equals(ShipType.NULL)){
+				Driver.printShipDestroyed(hitShip);
+			}
 		}
 	}
 	

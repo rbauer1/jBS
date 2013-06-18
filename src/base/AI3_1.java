@@ -9,10 +9,23 @@ import ships.Ships;
 import ships.Ships.ShipType;
 import base.Board.TileStatus;
 
-public class AI2 implements AI{
+/**
+ * 6/18/13 No difference from 3 at the moment
+ * 
+ * @version 3.1.0
+ * @author rbauer
+ * AI 3_1
+Number of Wins: 47291
+Average Turns per win: 110
+AI 3_1
+Number of Wins: 52709
+Average Turns per win: 107
+ * 
+ */
+public class AI3_1 implements AI {
 	private Player pOther;
 	private Player pThis;
-	private String name = "AI 2";
+	private String name = "AI 3_1, Patrol Snipe";
 	@SuppressWarnings("unused")
 	// ?
 	private TileStatus[][] board;
@@ -22,6 +35,7 @@ public class AI2 implements AI{
 	int smallestRemainingShip = 2;
 	int originalHitX = 0;
 	int originalHitY = 0;
+	int patrolSnipes = 4;
 	// boolean debugFirstShot = true;
 	int lastHit = -1;
 	boolean lastShipSunk = true;
@@ -36,7 +50,7 @@ public class AI2 implements AI{
 	 * @param pThis
 	 *            This Player
 	 */
-	public AI2(Player pOther, Player pThis) {
+	public AI3_1(Player pOther, Player pThis) {
 		this.pOther = pOther;
 		this.pThis = pThis;
 		hits = new int[12][16];
@@ -80,12 +94,12 @@ public class AI2 implements AI{
 			int xAdj = 0;
 			int yAdj = 0;
 			if (orientation == 0) {
-				x = r.nextInt(cols - lengths[currentShip]+1);
+				x = r.nextInt(cols - lengths[currentShip] + 1);
 				y = r.nextInt(rows);
 				xAdj = 1;
 			} else {
 				x = r.nextInt(cols);
-				y = r.nextInt(rows - lengths[currentShip]+1);
+				y = r.nextInt(rows - lengths[currentShip] + 1);
 				yAdj = 1;
 			}
 			for (int i = 0; i < lengths[currentShip] && !flag; i++) {
@@ -138,11 +152,11 @@ public class AI2 implements AI{
 	 * @return The next position that should be fired upon as a 3x1 matrix with
 	 *         the first two entries being the x-y coordinates and the last
 	 *         being either a 1 if the method is returning the location of a
-	 *         live ship, or 2 if it is returning the possible position of an
-	 *         unknown ship. Either a live ship, the possibility of a ship
-	 *         (subscan), or null. If null is returned, attack() will try to use
-	 *         its submarine to scan, if the submarine is sunk, it will fire
-	 *         randomly.
+	 *         live ship, 2 if it is returning the possible position of an
+	 *         unknown ship, or -1 if there is nothing of interest. Either a
+	 *         live ship, the possibility of a ship (subscan), or -1. If -1 is
+	 *         returned, attack() will try to use its submarine to scan, if the
+	 *         submarine is sunk, it will fire randomly.
 	 */
 
 	public int[] findHits() {
@@ -180,9 +194,9 @@ public class AI2 implements AI{
 		}
 		// conditional check for existent possibleShip.
 		if (possibleShip[0] == -1) {
-			return null;
-		} else
-			return possibleShip;
+			possibleShip[2] = -1;
+		}
+		return possibleShip;
 	}
 
 	/**
@@ -196,6 +210,8 @@ public class AI2 implements AI{
 	 * might be able to be changed to !=0 instead of < 0
 	 */
 	private void removeDeadSpaces() {
+		// This value determines the length of the smallest remaining ship
+		smallestRemainingShip = pOther.getSmallestRemainingShip();
 		for (int i = 1; i < hits.length - 1; i++) {
 			for (int j = 1; j < hits[0].length - 1; j++) {
 				if (hits[i][j] == 0) {
@@ -320,145 +336,202 @@ public class AI2 implements AI{
 				}
 			}
 		}
+		// does not create a new SubScanForAI because it is used to eliminate
+		// ambiguous spaces from lastSubScan.
+
+		// POSSIBLY SHOULD CREATE NEW SubScanForAI IF ANOTHER SHIP IS FOUND
+		// SOMETHING TO CONSIDER
 	}
 
+	/**
+	 * Backbone of the AI <br />
+	 * This method initiates all other actions by the AI including:
+	 * <ul>
+	 * <li>Updating smallestRemainingShip</li>
+	 * <li>Getting the latest copy of the opponent's <i>Board</i></li>
+	 * <li>Removing dead spaces from this AI's hit matrix</li>
+	 * <li>Deciding whether to scan with sub (implemented) or aircraft (not yet
+	 * implemented), fire missiles (not yet implemented), move aircraft (not yet
+	 * implemented), fire at aircraft (not yet implemented), or fire a regular
+	 * shot (implemented)</li>
+	 * <li>Determining where to fire the next shot (possibly should be moved to
+	 * a separate method)</li>
+	 * <li>Updating the current hit matrix to account for changes made during
+	 * this turn</li>
+	 * </ul>
+	 * 
+	 */
 	public void attack() {
-		smallestRemainingShip = pOther.getSmallestRemainingShip();
 		board = pOther.getPlayerStatusBoard();
 		removeDeadSpaces();
+		if(smallestRemainingShip > 2){
+			patrolSnipes = 0;
+		}
 		Random gen = new Random();
-		if (findHits() == null) {
-			if (!pThis.getSub().isThisShipSunk()) {
-				subScan();
-			} else {
-				int x = gen.nextInt(14) + 1;
-				int y = gen.nextInt(10) + 1;
-				while (hits[y][x] != 0) {
-					x = gen.nextInt(14) + 1;
-					y = gen.nextInt(10) + 1;
-				}
-
-				switch (Actions.attack(pOther, x, y)) {
-				case 0:
-					hits[y][x] = -1;
-					break;
-				case 1:
-					hits[y][x] = determineShip(x, y);
-					break;
+		// This array either holds the last ship hit
+		// pos[2]==1, the location of possible ship from
+		// a subscan pos[2]==2, or nothing because there
+		// is no useful ship location currently in the
+		// hit matrix pos[2]==-1
+		int[] pos = findHits();
+		if (patrolSnipes > 1 && pos[2] == -1) {
+			patrolSnipes--;
+			boolean tryAgain = true;
+			while (tryAgain) {
+				int xM = gen.nextInt(2);
+				int yM = gen.nextInt(2);
+				if (hits[2 + 7 * yM][2 + 11 * xM] == 0) {
+					tryAgain = false;
+					switch (Actions.attack(pOther, 2 + 11 * xM, 2 + 7 * yM)) {
+					case 0:
+						hits[2 + 7 * yM][2 + 11 * xM] = -1;
+						break;
+					case 1:
+						hits[2 + 7 * yM][2 + 11 * xM] = determineShip(
+								2 + 11 * xM, 2 + 7 * yM);
+						break;
+					}
 				}
 			}
 		} else {
-			int[] pos = findHits();
-			if (pos[2] == 2) {
-//				if (!pThis.getSub().isThisShipSunk() && lastSubScan.getRelevance()
-//						&& lastSubScan.update(hits)) {
-//					subScan(lastSubScan.getCenterCoords()[0],
-//							lastSubScan.getCenterCoords()[1]);
-//
-//				} else {
-					switch (Actions.attack(pOther, pos[1], pos[0])) {
+			if (pos[2] == -1) { // No useful information regarding ships
+								// whereabouts
+				if (!pThis.getSub().isThisShipSunk()) { // if sub alive, scan
+					subScan();
+				} else { // if sub dead, fire randomly
+					int x = gen.nextInt(14) + 1;
+					int y = gen.nextInt(10) + 1;
+					while (hits[y][x] != 0) {
+						x = gen.nextInt(14) + 1;
+						y = gen.nextInt(10) + 1;
+					}
+
+					switch (Actions.attack(pOther, x, y)) {
 					case 0:
-						hits[pos[0]][pos[1]] = -1;
+						hits[y][x] = -1;
 						break;
 					case 1:
-						hits[pos[0]][pos[1]] = determineShip(pos[1], pos[0]);
+						hits[y][x] = determineShip(x, y);
 						break;
 					}
-//				}
+				}
 			} else {
-				if (lastHit == -1) {
-					boolean repeat = true;
-					while (repeat) {
-						int chooseDirection = gen.nextInt(4);
-						int xMove = 0;
-						int yMove = 0;
-						switch (chooseDirection) {
+				if (pos[2] == 2) {
+					// check if there is a preexising subscan with possible
+					// ships
+					// located
+					// then check if a ship has been sunk in that
+					if (!pThis.getSub().isThisShipSunk()
+							&& lastSubScan.getRelevance()
+							&& lastSubScan.update(hits)) {
+						subScan(lastSubScan.getCenterCoords()[0],
+								lastSubScan.getCenterCoords()[1]);
+
+					} else {
+						switch (Actions.attack(pOther, pos[1], pos[0])) {
 						case 0:
-							xMove = -1;
-							lastHit = 0;
+							hits[pos[0]][pos[1]] = -1;
 							break;
 						case 1:
-							xMove = 1;
-							lastHit = 1;
+							hits[pos[0]][pos[1]] = determineShip(pos[1], pos[0]);
 							break;
-						case 2:
-							yMove = -1;
-							lastHit = 2;
-							break;
-						case 3:
-							yMove = 1;
-							lastHit = 3;
-							break;
-						}
-						if (hits[pos[0] + yMove][pos[1] + xMove] == 0
-								|| hits[pos[0] + yMove][pos[1] + xMove] == -4) {
-							switch (Actions.attack(pOther, pos[1] + xMove,
-									pos[0] + yMove)) {
-							case 0:
-								hits[pos[0] + yMove][pos[1] + xMove] = -1;
-								lastHit = -1;
-								break;
-							case 1:
-								hits[pos[0] + yMove][pos[1] + xMove] = determineShip(
-										pos[1] + xMove, pos[0] + yMove);
-								break;
-							}
-							repeat = false;
 						}
 					}
 				} else {
-					boolean repeat = true;
-					while (repeat) {
-						int xMove = 0;
-						int yMove = 0;
-						switch (lastHit) {
-						case 0:
-							xMove = -1;
-							while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
-								xMove--;
-							}
-							break;
-						case 1:
-							xMove = 1;
-							while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
-								xMove++;
-							}
-							break;
-						case 2:
-							yMove = -1;
-							while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
-								yMove--;
-							}
-							break;
-						case 3:
-							yMove = 1;
-							while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
-								yMove++;
-							}
-							break;
-						}
-						if (hits[pos[0] + yMove][pos[1] + xMove] == 0
-								|| hits[pos[0] + yMove][pos[1] + xMove] == -4) {
-							switch (Actions.attack(pOther, pos[1] + xMove,
-									pos[0] + yMove)) {
+					if (lastHit == -1) {
+						boolean repeat = true;
+						while (repeat) {
+							int chooseDirection = gen.nextInt(4);
+							int xMove = 0;
+							int yMove = 0;
+							switch (chooseDirection) {
 							case 0:
-								hits[pos[0] + yMove][pos[1] + xMove] = -1;
-								if (lastHit == 0 || lastHit == 2) {
-									lastHit++;
-								} else {
-									lastHit--;
+								xMove = -1;
+								lastHit = 0;
+								break;
+							case 1:
+								xMove = 1;
+								lastHit = 1;
+								break;
+							case 2:
+								yMove = -1;
+								lastHit = 2;
+								break;
+							case 3:
+								yMove = 1;
+								lastHit = 3;
+								break;
+							}
+							if (hits[pos[0] + yMove][pos[1] + xMove] == 0
+									|| hits[pos[0] + yMove][pos[1] + xMove] == -4) {
+								switch (Actions.attack(pOther, pos[1] + xMove,
+										pos[0] + yMove)) {
+								case 0:
+									hits[pos[0] + yMove][pos[1] + xMove] = -1;
+									lastHit = -1;
+									break;
+								case 1:
+									hits[pos[0] + yMove][pos[1] + xMove] = determineShip(
+											pos[1] + xMove, pos[0] + yMove);
+									break;
+								}
+								repeat = false;
+							}
+						}
+					} else {
+						boolean repeat = true;
+						while (repeat) {
+							int xMove = 0;
+							int yMove = 0;
+							switch (lastHit) {
+							case 0:
+								xMove = -1;
+								while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
+									xMove--;
 								}
 								break;
 							case 1:
-								hits[pos[0] + yMove][pos[1] + xMove] = determineShip(
-										pos[1] + xMove, pos[0] + yMove);
+								xMove = 1;
+								while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
+									xMove++;
+								}
+								break;
+							case 2:
+								yMove = -1;
+								while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
+									yMove--;
+								}
+								break;
+							case 3:
+								yMove = 1;
+								while (hits[pos[0] + yMove][pos[1] + xMove] > 0) {
+									yMove++;
+								}
 								break;
 							}
-							repeat = false;
-						} else {
-							lastHit = gen.nextInt(4);
-						}
+							if (hits[pos[0] + yMove][pos[1] + xMove] == 0
+									|| hits[pos[0] + yMove][pos[1] + xMove] == -4) {
+								switch (Actions.attack(pOther, pos[1] + xMove,
+										pos[0] + yMove)) {
+								case 0:
+									hits[pos[0] + yMove][pos[1] + xMove] = -1;
+									if (lastHit == 0 || lastHit == 2) {
+										lastHit++;
+									} else {
+										lastHit--;
+									}
+									break;
+								case 1:
+									hits[pos[0] + yMove][pos[1] + xMove] = determineShip(
+											pos[1] + xMove, pos[0] + yMove);
+									break;
+								}
+								repeat = false;
+							} else {
+								lastHit = gen.nextInt(4);
+							}
 
+						}
 					}
 				}
 			}
@@ -543,8 +616,8 @@ public class AI2 implements AI{
 	public int[][] getAllHits() {
 		return hits;
 	}
-	
-	public String getName(){
+
+	public String getName() {
 		return name;
 	}
 
