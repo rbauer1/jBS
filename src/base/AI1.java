@@ -68,12 +68,12 @@ public class AI1 implements AI{
 			int xAdj = 0;
 			int yAdj = 0;
 			if (orientation == 0) {
-				x = r.nextInt(cols- lengths[currentShip]) ;
+				x = r.nextInt(cols- lengths[currentShip]+1) ;
 				y = r.nextInt(rows);
 				xAdj = 1;
 			} else {
 				x = r.nextInt(cols);
-				y = r.nextInt(rows- lengths[currentShip]) ;
+				y = r.nextInt(rows- lengths[currentShip]+1) ;
 				yAdj = 1;
 			}
 			for (int i = 0; i < lengths[currentShip] && !flag; i++) {

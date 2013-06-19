@@ -10,10 +10,16 @@ import ships.Ships.ShipType;
 import base.Board.TileStatus;
 
 /**
+ * 
  * 6/12/13
  * @version 3.0.0
  * @author rbauer
- * 
+ * AI 3
+Number of Wins: 54886
+Average Turns per win: 108
+AI 3
+Number of Wins: 45114
+Average Turns per win: 108
  */
 public class AI3 implements AI{
 	private Player pOther;
@@ -57,7 +63,7 @@ public class AI3 implements AI{
 	}
 
 	public void initializeShips() throws IOException {
-		BufferedWriter bw = new BufferedWriter(new FileWriter("shipsTest4.txt"));
+		BufferedWriter bw = new BufferedWriter(new FileWriter("shipsTest5.txt"));
 		int cols = 14;
 		int rows = 10;
 		int[][] airLocationForWrite = new int[2][2]; // aircraft 1 is index
@@ -86,12 +92,12 @@ public class AI3 implements AI{
 			int xAdj = 0;
 			int yAdj = 0;
 			if (orientation == 0) {
-				x = r.nextInt(cols - lengths[currentShip]);
+				x = r.nextInt(cols - lengths[currentShip]+1);
 				y = r.nextInt(rows);
 				xAdj = 1;
 			} else {
 				x = r.nextInt(cols);
-				y = r.nextInt(rows - lengths[currentShip]);
+				y = r.nextInt(rows - lengths[currentShip]+1);
 				yAdj = 1;
 			}
 			for (int i = 0; i < lengths[currentShip] && !flag; i++) {
@@ -369,7 +375,7 @@ public class AI3 implements AI{
 			} else { //if sub dead, fire randomly
 				int x = gen.nextInt(14) + 1;
 				int y = gen.nextInt(10) + 1;
-				while (hits[y][x] != 0) {
+				while (hits[y][x] != 0) { 
 					x = gen.nextInt(14) + 1;
 					y = gen.nextInt(10) + 1;
 				}
