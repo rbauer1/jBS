@@ -81,7 +81,7 @@ public class Driver {
 	}
 
 	public static void initialize() throws IOException {
-		Scanner sc = new Scanner(new File("shipsTest3.txt"));
+		Scanner sc = new Scanner(new File("shipsTest4.txt"));
 		String[] input = sc.nextLine().split(" ");
 		AircraftCarrier ac = new AircraftCarrier(Integer.parseInt(input[0]),
 				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
@@ -106,7 +106,7 @@ public class Driver {
 		Ships[] ships = { ac, bs, de, sub, pb, a1, a2 };
 		Board b1 = new Board(ships);
 		// System.out.println();
-		sc = new Scanner(new File("shipsTest4.txt"));
+		sc = new Scanner(new File("shipsTest5.txt"));
 		input = sc.nextLine().split(" ");
 		AircraftCarrier ac2 = new AircraftCarrier(Integer.parseInt(input[0]),
 				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
@@ -161,6 +161,9 @@ public class Driver {
 		case AI3_1:
 			ai1 = new AI3_1(p2, p1);
 			break;
+		case AI4:
+			ai1 = new AI4(p2, p1);
+			break;
 		}
 		ai1.initializeShips();
 		if (!testObject.isPlayerIncluded()) {
@@ -180,6 +183,9 @@ public class Driver {
 			case AI3_1:
 				ai2 = new AI3_1(p1, p2);
 				break;
+			case AI4:
+				ai2 = new AI4(p1, p2);
+				break;
 			}
 			ai2.initializeShips();
 		}
@@ -187,7 +193,7 @@ public class Driver {
 	}
 
 	public enum AIName {
-		NONE, AI, AI2, AI3, AI3_1
+		NONE, AI, AI2, AI3, AI3_1, AI4
 	}
 
 	/**

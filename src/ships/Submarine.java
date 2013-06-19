@@ -56,13 +56,13 @@ public class Submarine extends Ships {
 			for(int j=-1; j<2; j++){
 				if(ts[y+i][x+j]==TileStatus.AIRCRAFTSCAN || ts[y+i][x+j]==TileStatus.SUBSCANSHIP ||ts[y+i][x+j]==TileStatus.SHIP){
 					shipFound = 1;
-					if(!(ts[y+i][x+j]==TileStatus.AIRCRAFTSCAN)){
+					if(ts[y+i][x+j]!=TileStatus.AIRCRAFTSCAN && ts[y+i][x+j]!=TileStatus.HIT && ts[y+i][x+j]!=TileStatus.MISS){
 						board.updateBoard(x+j, y+i, 0, TileStatus.SUBSCANSHIP);
 					}
 				}else{
-//					if(ts[y+i][x+j]==TileStatus.UNKNOWN){
+					if(ts[y+i][x+j]!=TileStatus.AIRCRAFTSCAN && ts[y+i][x+j]!=TileStatus.HIT && ts[y+i][x+j]!=TileStatus.MISS){
 						board.updateBoard(x+j, y+i, 0, TileStatus.SUBSCANEMPTY);						
-//					}
+					}
 				}
 			}
 		}
@@ -71,7 +71,9 @@ public class Submarine extends Ships {
 			for(int i=-1; i<2; i++){
 				for(int j=-1; j<2; j++){
 //					if(ts[y+i][x+j]==TileStatus.SUBSCANEMPTY)
-					board.updateBoard(x+j, y+i, 0, TileStatus.MISS);
+					if(ts[y+i][x+j]!=TileStatus.HIT){
+						board.updateBoard(x+j, y+i, 0, TileStatus.MISS);
+					}
 				}
 			}
 		}

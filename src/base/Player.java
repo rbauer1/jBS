@@ -62,7 +62,19 @@ public class Player {
 	public Ships[] getAllShips(){
 		return ships;
 	}
-	
+	/**
+	 * returns a single Ships object representing one of the ships this player controls. 
+	 * they are as follows<br/>
+	 * 0 == aircraft carrier<br/>
+	 * 1 == battleship <br/>
+	 * 2 == destroyer <br/>
+	 * 3 == submarine <br/>
+	 * 4 == patrol boat <br/>
+	 * 5 == aircraft1 <br/>
+	 * 6 == aircraft2 <br/>
+	 * @param i
+	 * @return
+	 */
 	public Ships getShip(int i){
 		return ships[i];
 	}
