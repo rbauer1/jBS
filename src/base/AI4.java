@@ -1,6 +1,9 @@
 package base;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
@@ -12,25 +15,34 @@ import base.Board.TileStatus;
 /**
  * 
  * 6/12/13
+ * 
  * @version 3.0.0
- * @author rbauer
- * AI 3
-Number of Wins: 54886
-Average Turns per win: 108
-AI 3
-Number of Wins: 45114
-Average Turns per win: 108
+ * @author rbauer AI 3 Number of Wins: 54886 Average Turns per win: 108 AI 3
+ *         Number of Wins: 45114 Average Turns per win: 108
  */
-public class AI3 implements AI{
+public class AI4 implements AI {
 	private Player pOther;
 	private Player pThis;
-	private String name = "AI 3";
+	private String name = "AI 4, Probabilities";
 	@SuppressWarnings("unused")
 	// ?
 	private TileStatus[][] board;
-	private int[][] hits;
 	// 0 for untouched, 1 for hit, -1 for miss,
 	// -2 for sunken ships, -4 for subscan, -3 for deadspace
+	private int[][] hits;
+	/*
+	 * Second to last dimension [][][2][] is starting/static vs dynamic. [0] is
+	 * starting, [1] is dynamic. Last dimension is as follows: [0] == total
+	 * probability of any ship being there [1] == probability of carrier being
+	 * there [2] == probability of battleship being there [3] == probability of
+	 * submarine OR destroyer being there (these values are double what they
+	 * would be for a single ship [4] == probability of patrol boat being there
+	 */
+	private int[][][][] dynamicProb;
+	/*
+	 * 0 is ac, 1 is bs, 2 is des, 3 is sub, 4 is pb
+	 */
+	private boolean[] otherShipsSunk;
 	int smallestRemainingShip = 2;
 	int originalHitX = 0;
 	int originalHitY = 0;
@@ -47,11 +59,19 @@ public class AI3 implements AI{
 	 *            The other Player
 	 * @param pThis
 	 *            This Player
+	 * @throws IOException
 	 */
-	public AI3(Player pOther, Player pThis) {
+	public AI4(Player pOther, Player pThis) throws IOException {
 		this.pOther = pOther;
 		this.pThis = pThis;
+		otherShipsSunk = new boolean[5];
+		for (int i = 0; i < 5; i++) {
+			otherShipsSunk[i] = false;
+		}
 		hits = new int[12][16];
+
+		dynamicProb = new int[12][16][2][5];
+		initializeProbabilities();
 		for (int i = 0; i < hits.length; i++) {
 			for (int j = 0; j < hits[0].length; j++) {
 				if (i == 0 || j == 0 || i == 11 || j == 15) {
@@ -62,8 +82,148 @@ public class AI3 implements AI{
 		}
 	}
 
+	private void updateTotalProbabilities() {
+		int temp = 0;
+		for (int i = 1; i < 11; i++) {
+			for (int j = 1; j < 15; j++) {
+				for (int k = 4; k > 0; k--) {
+					temp += dynamicProb[i][j][1][k];
+				}
+				dynamicProb[i][j][1][0] = temp;
+				temp = 0;
+			}
+		}
+	}
+
+	/**
+	 * Reduces the matrices for the supplied shipIndex to 0 in both the dynamic <br/>
+	 * [1] and static [0] probability matrices<br/>
+	 * 1 == aircraft carrier <br/>
+	 * 2 == battleship <br/>
+	 * 3 == submarine AND destroyer. <br/>
+	 * (this means the first time this method is invoked with shipindex 3, the
+	 * values are halved, not reduced to 0)<br/>
+	 * 4 == patrol boat <br/>
+	 * 
+	 * @param shipIndex
+	 */
+	private void shipEliminatedUpdateProbabilities(int shipIndex) {
+		for (int i = 0; i < 12; i++) {
+			for (int j = 0; j < 16; j++) {
+				if (shipIndex == 3
+						&& (!pOther.getShip(3).isThisShipSunk() || !pOther
+								.getShip(2).isThisShipSunk())) {
+					dynamicProb[i][j][0][shipIndex] = dynamicProb[i][j][0][shipIndex] / 2;
+					dynamicProb[i][j][1][shipIndex] = dynamicProb[i][j][1][shipIndex] / 2;
+				} else {
+					dynamicProb[i][j][0][shipIndex] = 0;
+					dynamicProb[i][j][1][shipIndex] = 0;
+				}
+			}
+		}
+		updateTotalProbabilities();
+	}
+
+	/**
+	 * Prints a representation of one either the dynamic or static probability
+	 * matrix or matrices
+	 * 
+	 * @param dynOrStat
+	 *            true if dynamic, false if static
+	 * @param specificShip
+	 * <br/>
+	 *            0 == totals<br />
+	 *            1 == aircraft carrier <br />
+	 *            2 == battleship <br/>
+	 *            3 == destroyer AND submarine <br/>
+	 *            4 == patrol boat <br/>
+	 *            5 == ALL
+	 */
+	@SuppressWarnings("unused")
+	private void printProbabilities(boolean dynOrStat, int specificShip) {
+		int dyOrSt = 0;
+		if (dynOrStat) {
+			dyOrSt = 1;
+		} else {
+			dyOrSt = 0;
+		}
+		if (specificShip == 5) {
+			for (int k = 0; k < 5; k++) {
+				for (int i = 0; i < 12; i++) {
+					for (int j = 0; j < 16; j++) {
+						System.out.print(dynamicProb[i][j][dyOrSt][k] + "\t");
+					}
+					System.out.println();
+				}
+				System.out.println();
+			}
+		} else {
+			for (int i = 0; i < 12; i++) {
+				for (int j = 0; j < 16; j++) {
+					System.out.print(dynamicProb[i][j][dyOrSt][specificShip]
+							+ "\t");
+				}
+				System.out.println();
+			}
+			System.out.println();
+		}
+	}
+	
+	/**
+	 * 
+	 * @return pos An int[] with<br/> 
+	 * pos[0] as the y coordinate <br/>
+	 * pos[1] as the x coordinate
+	 */
+	private int[] findHighestProbability(){
+		int max = 0;
+		int[] pos = new int[2];
+		for (int i = 0; i < 12; i++) {
+			for (int j = 0; j < 16; j++) {
+				if(dynamicProb[i][j][1][0]>max){
+					max = dynamicProb[i][j][1][0];
+					pos[0] = i;
+					pos[1] = j;
+				}
+			}
+		}
+		return pos;
+	}
+
+	private void initializeProbabilities() throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(
+				"src/base/AI4_Probabilities.txt"));
+		String[] tempS = new String[14];
+		for (int k = 0; k < 5; k++) {
+			for (int i = 0; i < 12; i++) {
+				if (i != 0 && i != 11) {
+					tempS = br.readLine().split(" ");
+				}
+				for (int j = 0; j < 16; j++) {
+					if (i == 0 || j == 0 || i == 11 || j == 15) {
+						dynamicProb[i][j][0][k] = -1;
+						dynamicProb[i][j][1][k] = -1;
+					} else {
+						dynamicProb[i][j][0][k] = Integer
+								.parseInt(tempS[j - 1]);
+						dynamicProb[i][j][1][k] = dynamicProb[i][j][0][k];
+					}
+				}
+			}
+			br.readLine();
+		}
+
+		br.close();
+	}
+
+	private void updateProbMiss(int x, int y) {
+		for (int i = 0; i < 5; i++) {
+			dynamicProb[y][x][1][i] = 0;
+		}
+	}
+
 	public void initializeShips() throws IOException {
-		BufferedWriter bw = new BufferedWriter(new FileWriter("shipsTest4.txt"));
+		BufferedWriter bw = new BufferedWriter(new FileWriter("shipsTest5.txt"));
 		int cols = 14;
 		int rows = 10;
 		int[][] airLocationForWrite = new int[2][2]; // aircraft 1 is index
@@ -92,12 +252,12 @@ public class AI3 implements AI{
 			int xAdj = 0;
 			int yAdj = 0;
 			if (orientation == 0) {
-				x = r.nextInt(cols - lengths[currentShip]+1);
+				x = r.nextInt(cols - lengths[currentShip] + 1);
 				y = r.nextInt(rows);
 				xAdj = 1;
 			} else {
 				x = r.nextInt(cols);
-				y = r.nextInt(rows - lengths[currentShip]+1);
+				y = r.nextInt(rows - lengths[currentShip] + 1);
 				yAdj = 1;
 			}
 			for (int i = 0; i < lengths[currentShip] && !flag; i++) {
@@ -207,9 +367,8 @@ public class AI3 implements AI{
 	 * The checks if (hits[i + k][j] < 0 && hits[i + k][j] != -4) { and the like
 	 * might be able to be changed to !=0 instead of < 0
 	 */
-	private void removeDeadSpaces() {
-		// This value determines the length of the smallest remaining ship
-		smallestRemainingShip = pOther.getSmallestRemainingShip();
+
+	private void removeDeadSpaces(int lengthOfShipExamined) {
 		for (int i = 1; i < hits.length - 1; i++) {
 			for (int j = 1; j < hits[0].length - 1; j++) {
 				if (hits[i][j] == 0) {
@@ -223,7 +382,7 @@ public class AI3 implements AI{
 					int countD = 0;
 					// Check down starting the space below the initial unknown
 					// coordinate
-					for (int k = 1; k < smallestRemainingShip && checkD; k++) {
+					for (int k = 1; k < lengthOfShipExamined && checkD; k++) {
 						// checks if passes bottom of board
 						if (i + k > 11) {
 							checkD = false;
@@ -238,7 +397,7 @@ public class AI3 implements AI{
 						}
 					}
 					// same, except check up (above)
-					for (int k = 1; k < smallestRemainingShip && checkU; k++) {
+					for (int k = 1; k < lengthOfShipExamined && checkU; k++) {
 						if (i - k < 0) {
 							checkU = false;
 						} else {
@@ -249,7 +408,7 @@ public class AI3 implements AI{
 						}
 					}
 
-					for (int k = 1; k < smallestRemainingShip && checkR; k++) {
+					for (int k = 1; k < lengthOfShipExamined && checkR; k++) {
 						if (j + k > 15) {
 							checkR = false;
 						} else {
@@ -260,7 +419,7 @@ public class AI3 implements AI{
 						}
 					}
 
-					for (int k = 1; k < smallestRemainingShip && checkL; k++) {
+					for (int k = 1; k < lengthOfShipExamined && checkL; k++) {
 						if (j - k < 0) {
 							checkL = false;
 						} else {
@@ -270,14 +429,61 @@ public class AI3 implements AI{
 								countL++;
 						}
 					}
-					if ((countL + countR + 1 < smallestRemainingShip)
-							&& (countD + countU + 1 < smallestRemainingShip)) {
-						// System.out.println("PROBABLY WRONG");
-						hits[i][j] = -3;
+					if ((countL + countR + 1 < lengthOfShipExamined)
+							&& (countD + countU + 1 < lengthOfShipExamined)) {
+						if (lengthOfShipExamined == smallestRemainingShip) {
+							hits[i][j] = -3;
+						} else {
+							switch (lengthOfShipExamined) {
+							case 2:
+								dynamicProb[i][j][1][4] = 0;
+								dynamicProb[i][j][1][0] = 0;
+								break;
+							case 3:
+								dynamicProb[i][j][1][3] = 0;
+								break;
+							case 4:
+								dynamicProb[i][j][1][2] = 0;
+								break;
+							case 5:
+								dynamicProb[i][j][1][1] = 0;
+								break;
+							}
+						}
+					}else if(!checkL || !checkR || !checkU || !checkD){
+						lowerProbs(i, j, lengthOfShipExamined, checkL, checkR, checkU, checkD);
 					}
 				}
 			}
 		}
+	}
+	
+	private void lowerProbs(int i, int j, int lengthOfShipExamined, boolean checkL, boolean checkR, boolean checkU, boolean checkD){
+		double adj = 1;
+		if(!checkL) adj-=0.25;
+		if(!checkR) adj-=0.25;
+		if(!checkU) adj-=0.25;
+		if(!checkD) adj-=0.25;
+		switch (lengthOfShipExamined) {
+		case 2:
+			dynamicProb[i][j][1][4] = (int)(dynamicProb[i][j][0][4]*adj);
+			break;
+		case 3:
+			dynamicProb[i][j][1][3] = (int)(dynamicProb[i][j][0][3]*adj);
+			break;
+		case 4:
+			dynamicProb[i][j][1][2] = (int)(dynamicProb[i][j][0][2]*adj);
+			break;
+		case 5:
+			dynamicProb[i][j][1][1] = (int)(dynamicProb[i][j][0][1]*adj);
+			break;
+		}
+	}
+
+	private void removeDeadSpaces() {
+		// This value determines the length of the smallest remaining ship
+		smallestRemainingShip = pOther.getSmallestRemainingShip();
+		removeDeadSpaces(smallestRemainingShip);
 	}
 
 	/**
@@ -297,6 +503,12 @@ public class AI3 implements AI{
 		while (check == -1) {
 			x = gen.nextInt(12) + 2;
 			y = gen.nextInt(8) + 2;
+			// this loop just makes it a little less likely that the AI will
+			// scan on top of a already known miss
+			while (hits[y][x] == -1 && gen.nextInt(10) > 0) {
+				x = gen.nextInt(12) + 2;
+				y = gen.nextInt(8) + 2;
+			}
 			check = pThis.getSub().scan(pOther, x, y);
 			if (check == 1) { // ship found
 				newValue = -4; // possibly a ship in this space
@@ -309,6 +521,9 @@ public class AI3 implements AI{
 				for (int j = -1; j < 2; j++) {
 					if (hits[y + i][x + j] == 0) {
 						hits[y + i][x + j] = newValue;
+						if (newValue == -1) {
+							updateProbMiss(x + j, y + i);
+						}
 					}
 				}
 			}
@@ -317,7 +532,29 @@ public class AI3 implements AI{
 		}
 	}
 
-	private void subScan(int x, int y) {
+	private void subScan(int x, int y, boolean makeNewSubScanForAI) {
+		if(makeNewSubScanForAI){
+			if(x>2){
+				if((hits[y][x+1] <0 && hits[y][x+1] !=-4) && (hits[y+1][x+1] <0 && hits[y+1][x+1] !=-4) && (hits[y-1][x+1] <0 && hits[y-1][x+1] !=-4)){
+					x--;
+				}
+			}
+			if(x<13){
+				if((hits[y][x-1] <0 && hits[y][x-1] !=-4) && (hits[y+1][x-1] <0 && hits[y+1][x-1] !=-4) && (hits[y-1][x-1] <0 && hits[y-1][x-1] !=-4)){
+					x++;
+				}
+			}
+			if(y>2){
+				if((hits[y+1][x] <0 && hits[y+1][x] !=-4) && (hits[y+1][x+1] <0 && hits[y+1][x+1] !=-4) && (hits[y+1][x-1] <0 && hits[y+1][x-1] !=-4)){
+					y--;
+				}
+			}
+			if(y<9){
+				if((hits[y-1][x] <0 && hits[y-1][x] !=-4) && (hits[y-1][x-1] <0 && hits[y-1][x-1] !=-4) && (hits[y-1][x+1] <0 && hits[y-1][x+1] !=-4)){
+					y++;
+				}
+			}
+		}
 		int check = pThis.getSub().scan(pOther, x, y);
 		int newValue = 0;
 		if (check == 1) { // ship found
@@ -331,14 +568,20 @@ public class AI3 implements AI{
 			for (int j = -1; j < 2; j++) {
 				if (hits[y + i][x + j] == 0 || hits[y + i][x + j] == -4) {
 					hits[y + i][x + j] = newValue;
+					if (newValue == -1) {
+						updateProbMiss(x + j, y + i);
+					}
 				}
 			}
 		}
-		//does not create a new SubScanForAI because it is used to eliminate
-		//ambiguous spaces from lastSubScan.
-		
-		//POSSIBLY SHOULD CREATE NEW SubScanForAI IF ANOTHER SHIP IS FOUND
-		//SOMETHING TO CONSIDER
+		// does not create a new SubScanForAI because it is used to eliminate
+		// ambiguous spaces from lastSubScan.
+		if(makeNewSubScanForAI){
+			lastSubScan = new SubScanForAI(x, y, hits);
+		}
+
+		// POSSIBLY SHOULD CREATE NEW SubScanForAI IF ANOTHER SHIP IS FOUND
+		// SOMETHING TO CONSIDER
 	}
 
 	/**
@@ -361,7 +604,9 @@ public class AI3 implements AI{
 	 */
 	public void attack() {
 		board = pOther.getPlayerStatusBoard();
-		removeDeadSpaces();
+		for (int i = 2; i < 6; i++) {
+			removeDeadSpaces(i);
+		}
 		Random gen = new Random();
 		// This array either holds the last ship hit
 		// pos[2]==1, the location of possible ship from
@@ -370,16 +615,34 @@ public class AI3 implements AI{
 		// hit matrix pos[2]==-1
 		int[] pos = findHits();
 		if (pos[2] == -1) { // No useful information regarding ships whereabouts
-			if (!pThis.getSub().isThisShipSunk()) { //if sub alive, scan
-				subScan();
-			} else { //if sub dead, fire randomly
-				int x = gen.nextInt(14) + 1;
-				int y = gen.nextInt(10) + 1;
-				while (hits[y][x] != 0) { 
-					x = gen.nextInt(14) + 1;
-					y = gen.nextInt(10) + 1;
+			if (!pThis.getSub().isThisShipSunk()) { // if sub alive, scan
+				if(gen.nextInt(10)<2){
+					subScan();
+				}else{
+					int[] probPos = findHighestProbability();
+					if(probPos[1]<2){
+						probPos[1] = 2;
+					}else if(probPos[1]>13){
+						probPos[1] = 13;
+					}
+					if(probPos[0]<2){
+						probPos[0] = 2;
+					}else if(probPos[0]>9){
+						probPos[0] = 9;
+					}
+					subScan(probPos[1], probPos[0], true);
 				}
-
+			} else { // if sub dead, fire base on probabilities
+				int[] probPos = findHighestProbability();
+				int x = probPos[1];
+				int y = probPos[0];
+				//very small chance it will fire randomly
+				if(gen.nextInt(40)<1){
+					while (hits[y][x] != 0) {
+						x = gen.nextInt(14) + 1;
+						y = gen.nextInt(10) + 1;
+					}
+				}
 				switch (Actions.attack(pOther, x, y)) {
 				case 0:
 					hits[y][x] = -1;
@@ -388,16 +651,18 @@ public class AI3 implements AI{
 					hits[y][x] = determineShip(x, y);
 					break;
 				}
+				updateProbMiss(x, y);
 			}
 		} else {
 			if (pos[2] == 2) {
-				//check if there is a preexising subscan with possible ships located
-				//then check if a ship has been sunk in that 
+				// check if there is a preexising subscan with possible ships
+				// located
+				// then check if a ship has been sunk in that
 				if (!pThis.getSub().isThisShipSunk()
 						&& lastSubScan.getRelevance()
 						&& lastSubScan.update(hits)) {
 					subScan(lastSubScan.getCenterCoords()[0],
-							lastSubScan.getCenterCoords()[1]);
+							lastSubScan.getCenterCoords()[1], false);
 
 				} else {
 					switch (Actions.attack(pOther, pos[1], pos[0])) {
@@ -408,6 +673,7 @@ public class AI3 implements AI{
 						hits[pos[0]][pos[1]] = determineShip(pos[1], pos[0]);
 						break;
 					}
+					updateProbMiss(pos[1], pos[0]);
 				}
 			} else {
 				if (lastHit == -1) {
@@ -447,6 +713,7 @@ public class AI3 implements AI{
 										pos[1] + xMove, pos[0] + yMove);
 								break;
 							}
+							updateProbMiss(pos[1] + xMove, pos[0] + yMove);
 							repeat = false;
 						}
 					}
@@ -498,6 +765,7 @@ public class AI3 implements AI{
 										pos[1] + xMove, pos[0] + yMove);
 								break;
 							}
+							updateProbMiss(pos[1] + xMove, pos[0] + yMove);
 							repeat = false;
 						} else {
 							lastHit = gen.nextInt(4);
@@ -508,6 +776,7 @@ public class AI3 implements AI{
 			}
 		}
 		updateHits();
+//		printProbabilities(true, 5);
 	}
 
 	/**
@@ -519,13 +788,29 @@ public class AI3 implements AI{
 	private void updateHits() {
 		Ships[] s = pOther.getAllShips();
 		for (int k = 0; k < 5; k++) {
-			if (s[k].isThisShipSunk()) {
+			if (s[k].isThisShipSunk() && !otherShipsSunk[k]) {
 				for (int i = 1; i < hits.length - 1; i++) {
 					for (int j = 1; j < hits[0].length - 1; j++) {
 						if (hits[i][j] == k + 1)
 							hits[i][j] = -2;
 					}
 				}
+				otherShipsSunk[k] = true;
+				/*
+				 * this mess is to make the values correctly line up with the
+				 * method below
+				 */
+				switch (k) {
+				case 3:
+				case 4:
+					break;
+				case 0:
+				case 1:
+				case 2:
+					k++;
+					break;
+				}
+				shipEliminatedUpdateProbabilities(k);
 			}
 		}
 	}
@@ -587,8 +872,8 @@ public class AI3 implements AI{
 	public int[][] getAllHits() {
 		return hits;
 	}
-	
-	public String getName(){
+
+	public String getName() {
 		return name;
 	}
 
