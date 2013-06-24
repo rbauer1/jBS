@@ -139,6 +139,7 @@ public class AI4 implements AI {
 	 *            4 == patrol boat <br/>
 	 *            5 == ALL
 	 */
+	@SuppressWarnings("unused")
 	private void printProbabilities(boolean dynOrStat, int specificShip) {
 		int dyOrSt = 0;
 		if (dynOrStat) {
@@ -449,9 +450,33 @@ public class AI4 implements AI {
 								break;
 							}
 						}
+					}else if(!checkL || !checkR || !checkU || !checkD){
+						lowerProbs(i, j, lengthOfShipExamined, checkL, checkR, checkU, checkD);
 					}
 				}
 			}
+		}
+	}
+	
+	private void lowerProbs(int i, int j, int lengthOfShipExamined, boolean checkL, boolean checkR, boolean checkU, boolean checkD){
+		double adj = 1;
+		if(!checkL) adj-=0.25;
+		if(!checkR) adj-=0.25;
+		if(!checkU) adj-=0.25;
+		if(!checkD) adj-=0.25;
+		switch (lengthOfShipExamined) {
+		case 2:
+			dynamicProb[i][j][1][4] = (int)(dynamicProb[i][j][0][4]*adj);
+			break;
+		case 3:
+			dynamicProb[i][j][1][3] = (int)(dynamicProb[i][j][0][3]*adj);
+			break;
+		case 4:
+			dynamicProb[i][j][1][2] = (int)(dynamicProb[i][j][0][2]*adj);
+			break;
+		case 5:
+			dynamicProb[i][j][1][1] = (int)(dynamicProb[i][j][0][1]*adj);
+			break;
 		}
 	}
 
