@@ -14,11 +14,19 @@ import base.Board.TileStatus;
 
 /**
  * 
- * 6/12/13
+ * 6/24/13
  * 
- * @version 3.0.0
- * @author rbauer AI 3 Number of Wins: 54886 Average Turns per win: 108 AI 3
- *         Number of Wins: 45114 Average Turns per win: 108
+ * @version 4.1.0
+ * @author rbauer
+ * 
+ *         AI 4, Probabilities Number of Wins: 73633 Average Turns per win: 98
+ *         Classic1 Number of Wins: 26367 Average Turns per win: 101
+ * 
+ *         AI 4, Probabilities Number of Wins: 66057 Average Turns per win: 96
+ *         AI 3 Number of Wins: 33943 Average Turns per win: 100
+ * 
+ *         AI 3 Number of Wins: 36774 Average Turns per win: 99 AI 4,
+ *         Probabilities Number of Wins: 63226 Average Turns per win: 96
  */
 public class AI4 implements AI {
 	private Player pOther;
@@ -459,6 +467,7 @@ public class AI4 implements AI {
 		}
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Called by removeDeadSpaces(int lengthOfShipExamined)<br />
 	 * the 4 booleans from the above method that get passed tell whether or not
@@ -480,6 +489,8 @@ public class AI4 implements AI {
 	 * @param checkD
 	 *            can fit going down?
 	 */
+=======
+>>>>>>> a084e3e798db8ba28a61117127e8057f2a40321c
 	private void lowerProbs(int i, int j, int lengthOfShipExamined,
 			boolean checkL, boolean checkR, boolean checkU, boolean checkD) {
 		double adj = 1;
@@ -812,7 +823,11 @@ public class AI4 implements AI {
 		}
 		updateHits();
 		updateTotalProbabilities();
+<<<<<<< HEAD
 		// printProbabilities(true, 5);
+=======
+		printProbabilities(true, 5);
+>>>>>>> a084e3e798db8ba28a61117127e8057f2a40321c
 	}
 
 	/**
