@@ -14,11 +14,19 @@ import base.Board.TileStatus;
 
 /**
  * 
- * 6/12/13
+ * 6/24/13
  * 
- * @version 3.0.0
- * @author rbauer AI 3 Number of Wins: 54886 Average Turns per win: 108 AI 3
- *         Number of Wins: 45114 Average Turns per win: 108
+ * @version 4.1.0
+ * @author rbauer
+ * 
+ *         AI 4, Probabilities Number of Wins: 73633 Average Turns per win: 98
+ *         Classic1 Number of Wins: 26367 Average Turns per win: 101
+ * 
+ *         AI 4, Probabilities Number of Wins: 66057 Average Turns per win: 96
+ *         AI 3 Number of Wins: 33943 Average Turns per win: 100
+ * 
+ *         AI 3 Number of Wins: 36774 Average Turns per win: 99 AI 4,
+ *         Probabilities Number of Wins: 63226 Average Turns per win: 96
  */
 public class AI4 implements AI {
 	private Player pOther;
@@ -168,19 +176,19 @@ public class AI4 implements AI {
 			System.out.println();
 		}
 	}
-	
+
 	/**
 	 * 
-	 * @return pos An int[] with<br/> 
-	 * pos[0] as the y coordinate <br/>
-	 * pos[1] as the x coordinate
+	 * @return pos An int[] with<br/>
+	 *         pos[0] as the y coordinate <br/>
+	 *         pos[1] as the x coordinate
 	 */
-	private int[] findHighestProbability(){
+	private int[] findHighestProbability() {
 		int max = 0;
 		int[] pos = new int[2];
 		for (int i = 0; i < 12; i++) {
 			for (int j = 0; j < 16; j++) {
-				if(dynamicProb[i][j][1][0]>max){
+				if (dynamicProb[i][j][1][0] > max) {
 					max = dynamicProb[i][j][1][0];
 					pos[0] = i;
 					pos[1] = j;
@@ -450,32 +458,38 @@ public class AI4 implements AI {
 								break;
 							}
 						}
-					}else if(!checkL || !checkR || !checkU || !checkD){
-						lowerProbs(i, j, lengthOfShipExamined, checkL, checkR, checkU, checkD);
+					} else if (!checkL || !checkR || !checkU || !checkD) {
+						lowerProbs(i, j, lengthOfShipExamined, checkL, checkR,
+								checkU, checkD);
 					}
 				}
 			}
 		}
 	}
-	
-	private void lowerProbs(int i, int j, int lengthOfShipExamined, boolean checkL, boolean checkR, boolean checkU, boolean checkD){
+
+	private void lowerProbs(int i, int j, int lengthOfShipExamined,
+			boolean checkL, boolean checkR, boolean checkU, boolean checkD) {
 		double adj = 1;
-		if(!checkL) adj-=0.25;
-		if(!checkR) adj-=0.25;
-		if(!checkU) adj-=0.25;
-		if(!checkD) adj-=0.25;
+		if (!checkL)
+			adj -= 0.25;
+		if (!checkR)
+			adj -= 0.25;
+		if (!checkU)
+			adj -= 0.25;
+		if (!checkD)
+			adj -= 0.25;
 		switch (lengthOfShipExamined) {
 		case 2:
-			dynamicProb[i][j][1][4] = (int)(dynamicProb[i][j][0][4]*adj);
+			dynamicProb[i][j][1][4] = (int) (dynamicProb[i][j][0][4] * adj);
 			break;
 		case 3:
-			dynamicProb[i][j][1][3] = (int)(dynamicProb[i][j][0][3]*adj);
+			dynamicProb[i][j][1][3] = (int) (dynamicProb[i][j][0][3] * adj);
 			break;
 		case 4:
-			dynamicProb[i][j][1][2] = (int)(dynamicProb[i][j][0][2]*adj);
+			dynamicProb[i][j][1][2] = (int) (dynamicProb[i][j][0][2] * adj);
 			break;
 		case 5:
-			dynamicProb[i][j][1][1] = (int)(dynamicProb[i][j][0][1]*adj);
+			dynamicProb[i][j][1][1] = (int) (dynamicProb[i][j][0][1] * adj);
 			break;
 		}
 	}
@@ -533,24 +547,32 @@ public class AI4 implements AI {
 	}
 
 	private void subScan(int x, int y, boolean makeNewSubScanForAI) {
-		if(makeNewSubScanForAI){
-			if(x>2){
-				if((hits[y][x+1] <0 && hits[y][x+1] !=-4) && (hits[y+1][x+1] <0 && hits[y+1][x+1] !=-4) && (hits[y-1][x+1] <0 && hits[y-1][x+1] !=-4)){
+		if (makeNewSubScanForAI) {
+			if (x > 2) {
+				if ((hits[y][x + 1] < 0 && hits[y][x + 1] != -4)
+						&& (hits[y + 1][x + 1] < 0 && hits[y + 1][x + 1] != -4)
+						&& (hits[y - 1][x + 1] < 0 && hits[y - 1][x + 1] != -4)) {
 					x--;
 				}
 			}
-			if(x<13){
-				if((hits[y][x-1] <0 && hits[y][x-1] !=-4) && (hits[y+1][x-1] <0 && hits[y+1][x-1] !=-4) && (hits[y-1][x-1] <0 && hits[y-1][x-1] !=-4)){
+			if (x < 13) {
+				if ((hits[y][x - 1] < 0 && hits[y][x - 1] != -4)
+						&& (hits[y + 1][x - 1] < 0 && hits[y + 1][x - 1] != -4)
+						&& (hits[y - 1][x - 1] < 0 && hits[y - 1][x - 1] != -4)) {
 					x++;
 				}
 			}
-			if(y>2){
-				if((hits[y+1][x] <0 && hits[y+1][x] !=-4) && (hits[y+1][x+1] <0 && hits[y+1][x+1] !=-4) && (hits[y+1][x-1] <0 && hits[y+1][x-1] !=-4)){
+			if (y > 2) {
+				if ((hits[y + 1][x] < 0 && hits[y + 1][x] != -4)
+						&& (hits[y + 1][x + 1] < 0 && hits[y + 1][x + 1] != -4)
+						&& (hits[y + 1][x - 1] < 0 && hits[y + 1][x - 1] != -4)) {
 					y--;
 				}
 			}
-			if(y<9){
-				if((hits[y-1][x] <0 && hits[y-1][x] !=-4) && (hits[y-1][x-1] <0 && hits[y-1][x-1] !=-4) && (hits[y-1][x+1] <0 && hits[y-1][x+1] !=-4)){
+			if (y < 9) {
+				if ((hits[y - 1][x] < 0 && hits[y - 1][x] != -4)
+						&& (hits[y - 1][x - 1] < 0 && hits[y - 1][x - 1] != -4)
+						&& (hits[y - 1][x + 1] < 0 && hits[y - 1][x + 1] != -4)) {
 					y++;
 				}
 			}
@@ -576,7 +598,7 @@ public class AI4 implements AI {
 		}
 		// does not create a new SubScanForAI because it is used to eliminate
 		// ambiguous spaces from lastSubScan.
-		if(makeNewSubScanForAI){
+		if (makeNewSubScanForAI) {
 			lastSubScan = new SubScanForAI(x, y, hits);
 		}
 
@@ -616,18 +638,18 @@ public class AI4 implements AI {
 		int[] pos = findHits();
 		if (pos[2] == -1) { // No useful information regarding ships whereabouts
 			if (!pThis.getSub().isThisShipSunk()) { // if sub alive, scan
-				if(gen.nextInt(10)<2){
+				if (gen.nextInt(10) < 2) {
 					subScan();
-				}else{
+				} else {
 					int[] probPos = findHighestProbability();
-					if(probPos[1]<2){
+					if (probPos[1] < 2) {
 						probPos[1] = 2;
-					}else if(probPos[1]>13){
+					} else if (probPos[1] > 13) {
 						probPos[1] = 13;
 					}
-					if(probPos[0]<2){
+					if (probPos[0] < 2) {
 						probPos[0] = 2;
-					}else if(probPos[0]>9){
+					} else if (probPos[0] > 9) {
 						probPos[0] = 9;
 					}
 					subScan(probPos[1], probPos[0], true);
@@ -636,8 +658,8 @@ public class AI4 implements AI {
 				int[] probPos = findHighestProbability();
 				int x = probPos[1];
 				int y = probPos[0];
-				//very small chance it will fire randomly
-				if(gen.nextInt(40)<1){
+				// very small chance it will fire randomly
+				if (gen.nextInt(40) < 1) {
 					while (hits[y][x] != 0) {
 						x = gen.nextInt(14) + 1;
 						y = gen.nextInt(10) + 1;
@@ -776,7 +798,8 @@ public class AI4 implements AI {
 			}
 		}
 		updateHits();
-//		printProbabilities(true, 5);
+		updateTotalProbabilities();
+		printProbabilities(true, 5);
 	}
 
 	/**
