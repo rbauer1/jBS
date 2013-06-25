@@ -467,7 +467,7 @@ public class AI4 implements AI {
 		}
 	}
 
-<<<<<<< HEAD
+
 	/**
 	 * Called by removeDeadSpaces(int lengthOfShipExamined)<br />
 	 * the 4 booleans from the above method that get passed tell whether or not
@@ -489,8 +489,6 @@ public class AI4 implements AI {
 	 * @param checkD
 	 *            can fit going down?
 	 */
-=======
->>>>>>> a084e3e798db8ba28a61117127e8057f2a40321c
 	private void lowerProbs(int i, int j, int lengthOfShipExamined,
 			boolean checkL, boolean checkR, boolean checkU, boolean checkD) {
 		double adj = 1;
@@ -823,11 +821,7 @@ public class AI4 implements AI {
 		}
 		updateHits();
 		updateTotalProbabilities();
-<<<<<<< HEAD
-		// printProbabilities(true, 5);
-=======
-		printProbabilities(true, 5);
->>>>>>> a084e3e798db8ba28a61117127e8057f2a40321c
+		//printProbabilities(true, 5);
 	}
 
 	/**
