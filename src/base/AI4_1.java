@@ -14,13 +14,10 @@ import base.Board.TileStatus;
 
 /**
  * 
- * 6/24/13
+ * 6/27/13
  * 
  * @version 4.1.0
  * @author rbauer
- * 
- *         AI 4, Probabilities Number of Wins: 73633 Average Turns per win: 98
- *         Classic1 Number of Wins: 26367 Average Turns per win: 101
  * 
  *         AI 4, Torpedoes Number of Wins: 76636 Average Turns per win: 88 AI 3
  *         Number of Wins: 23364 Average Turns per win: 99
