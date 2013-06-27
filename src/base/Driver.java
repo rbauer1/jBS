@@ -66,6 +66,7 @@ public class Driver {
 		testObject = tp.getTestObject();
 		System.out.println(testObject.getNumberOfTestRuns());
 		testRun(testObject.getNumberOfTestRuns());
+		System.exit(0);
 		// initialize();
 		// while (!gameOver()) {
 		// debugCount++;
@@ -164,6 +165,9 @@ public class Driver {
 		case AI4:
 			ai1 = new AI4(p2, p1);
 			break;
+		case AI4_1:
+			ai1 = new AI4_1(p2, p1);
+			break;
 		}
 		ai1.initializeShips();
 		if (!testObject.isPlayerIncluded()) {
@@ -186,6 +190,9 @@ public class Driver {
 			case AI4:
 				ai2 = new AI4(p1, p2);
 				break;
+			case AI4_1:
+				ai2 = new AI4_1(p1, p2);
+				break;
 			}
 			ai2.initializeShips();
 		}
@@ -193,7 +200,7 @@ public class Driver {
 	}
 
 	public enum AIName {
-		NONE, AI, AI2, AI3, AI3_1, AI4
+		NONE, AI, AI2, AI3, AI3_1, AI4, AI4_1
 	}
 
 	/**
@@ -308,7 +315,7 @@ public class Driver {
 					System.out.print("y coord: ");
 					y = sc.nextInt();
 					if (current.getShip(shipIndex).fireMissile(other, x, y,
-							config)) {
+							config)[0][0]!=-1) {
 						turnFinished = true;
 					}
 					break;

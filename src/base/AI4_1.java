@@ -22,17 +22,16 @@ import base.Board.TileStatus;
  *         AI 4, Probabilities Number of Wins: 73633 Average Turns per win: 98
  *         Classic1 Number of Wins: 26367 Average Turns per win: 101
  * 
- *         AI 4, Probabilities Number of Wins: 66057 Average Turns per win: 96
- *         AI 3 Number of Wins: 33943 Average Turns per win: 100
+ *         AI 4, Torpedoes Number of Wins: 76636 Average Turns per win: 88 AI 3
+ *         Number of Wins: 23364 Average Turns per win: 99
  * 
- *         AI 3 Number of Wins: 36774 Average Turns per win: 99 AI 4,
- *         Probabilities Number of Wins: 63226 Average Turns per win: 96
+ *         AI 3 Number of Wins: 25841 Average Turns per win: 98 AI 4,
+ *         Probabilities Number of Wins: 74159 Average Turns per win: 89
  */
-public class AI4 implements AI {
+public class AI4_1 implements AI {
 	private Player pOther;
 	private Player pThis;
-	private String name = "AI 4, Probabilities";
-	@SuppressWarnings("unused")
+	private String name = "AI 4, Torpedoes";
 	// ?
 	private TileStatus[][] board;
 	// 0 for untouched, 1 for hit, -1 for miss,
@@ -69,7 +68,7 @@ public class AI4 implements AI {
 	 *            This Player
 	 * @throws IOException
 	 */
-	public AI4(Player pOther, Player pThis) throws IOException {
+	public AI4_1(Player pOther, Player pThis) throws IOException {
 		this.pOther = pOther;
 		this.pThis = pThis;
 		otherShipsSunk = new boolean[5];
@@ -147,8 +146,7 @@ public class AI4 implements AI {
 	 *            4 == patrol boat <br/>
 	 *            5 == ALL
 	 */
-	@SuppressWarnings("unused")
-	private void printProbabilities(boolean dynOrStat, int specificShip) {
+	public void printProbabilities(boolean dynOrStat, int specificShip) {
 		int dyOrSt = 0;
 		if (dynOrStat) {
 			dyOrSt = 1;
@@ -467,7 +465,6 @@ public class AI4 implements AI {
 		}
 	}
 
-
 	/**
 	 * Called by removeDeadSpaces(int lengthOfShipExamined)<br />
 	 * the 4 booleans from the above method that get passed tell whether or not
@@ -603,6 +600,7 @@ public class AI4 implements AI {
 		int newValue = 0;
 		if (check == 1) { // ship found
 			newValue = -4; // possibly a ship in this space
+			// makeNewSubScanForAI=true; //make new scan if ship found
 		} else {
 			newValue = -1; // no ships (miss)
 		}
@@ -651,6 +649,7 @@ public class AI4 implements AI {
 		for (int i = 2; i < 6; i++) {
 			removeDeadSpaces(i);
 		}
+
 		Random gen = new Random();
 		// This array either holds the last ship hit
 		// pos[2]==1, the location of possible ship from
@@ -659,43 +658,78 @@ public class AI4 implements AI {
 		// hit matrix pos[2]==-1
 		int[] pos = findHits();
 		if (pos[2] == -1) { // No useful information regarding ships whereabouts
-			if (!pThis.getSub().isThisShipSunk()) { // if sub alive, scan
-				if (gen.nextInt(10) < 2) {
-					subScan();
+			if (pThis.getSub().canFireMissile()) {
+				int shot1 = 1;
+				int shot2 = 10;
+				int[][] missileResults;
+				int cutOff = 15;
+				if (hits[shot1][1] == 0) {
+					missileResults = pThis.getSub().fireMissile(pOther, 1,
+							shot1, 1);
+					if (missileResults[0][0] == 1) {
+						cutOff = missileResults[0][1];
+					}
+					for (int i = 1; i < cutOff; i++) {
+						hits[shot1][i] = -1;
+						updateProbMiss(i, shot1);
+					}
+					if (missileResults[0][0] == 1) {
+						hits[shot1][cutOff] = determineShip(cutOff, shot1);
+					}
 				} else {
+					missileResults = pThis.getSub().fireMissile(pOther, 1,
+							shot2, 1);
+					if (missileResults[0][0] == 1) {
+						cutOff = missileResults[0][1];
+					}
+					for (int i = 1; i < cutOff; i++) {
+						hits[shot2][i] = -1;
+						updateProbMiss(i, shot2);
+					}
+					if (missileResults[0][0] == 1) {
+						hits[shot2][cutOff] = determineShip(cutOff, shot2);
+					}
+				}
+
+			} else {
+				if (!pThis.getSub().isThisShipSunk()) { // if sub alive, scan
+					if (gen.nextInt(10) < 2) {
+						subScan();
+					} else {
+						int[] probPos = findHighestProbability();
+						if (probPos[1] < 2) {
+							probPos[1] = 2;
+						} else if (probPos[1] > 13) {
+							probPos[1] = 13;
+						}
+						if (probPos[0] < 2) {
+							probPos[0] = 2;
+						} else if (probPos[0] > 9) {
+							probPos[0] = 9;
+						}
+						subScan(probPos[1], probPos[0], true);
+					}
+				} else { // if sub dead, fire base on probabilities
 					int[] probPos = findHighestProbability();
-					if (probPos[1] < 2) {
-						probPos[1] = 2;
-					} else if (probPos[1] > 13) {
-						probPos[1] = 13;
+					int x = probPos[1];
+					int y = probPos[0];
+					// very small chance it will fire randomly
+					if (gen.nextInt(40) < 1) {
+						while (hits[y][x] != 0) {
+							x = gen.nextInt(14) + 1;
+							y = gen.nextInt(10) + 1;
+						}
 					}
-					if (probPos[0] < 2) {
-						probPos[0] = 2;
-					} else if (probPos[0] > 9) {
-						probPos[0] = 9;
+					switch (Actions.attack(pOther, x, y)) {
+					case 0:
+						hits[y][x] = -1;
+						break;
+					case 1:
+						hits[y][x] = determineShip(x, y);
+						break;
 					}
-					subScan(probPos[1], probPos[0], true);
+					updateProbMiss(x, y);
 				}
-			} else { // if sub dead, fire base on probabilities
-				int[] probPos = findHighestProbability();
-				int x = probPos[1];
-				int y = probPos[0];
-				// very small chance it will fire randomly
-				if (gen.nextInt(40) < 1) {
-					while (hits[y][x] != 0) {
-						x = gen.nextInt(14) + 1;
-						y = gen.nextInt(10) + 1;
-					}
-				}
-				switch (Actions.attack(pOther, x, y)) {
-				case 0:
-					hits[y][x] = -1;
-					break;
-				case 1:
-					hits[y][x] = determineShip(x, y);
-					break;
-				}
-				updateProbMiss(x, y);
 			}
 		} else {
 			if (pos[2] == 2) {
@@ -821,7 +855,7 @@ public class AI4 implements AI {
 		}
 		updateHits();
 		updateTotalProbabilities();
-		//printProbabilities(true, 5);
+		// printProbabilities(true, 5);
 	}
 
 	/**

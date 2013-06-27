@@ -12,7 +12,8 @@ public class PatrolBoat extends Ships {
 		numMissiles=0;
 		type = Ships.ShipType.PATROLBOAT;
 	}
-	public boolean fireMissile(Player other, int x, int y, int config){
-		return false;
+	public int[][] fireMissile(Player other, int x, int y, int config){
+		int[][] returnArr = {{-1}};
+		return returnArr;
 	}
 }

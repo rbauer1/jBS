@@ -15,25 +15,33 @@ public class Submarine extends Ships {
 		numMissiles=2;
 		type = Ships.ShipType.SUBMARINE;
 	}
-	public boolean fireMissile(Player other, int x, int y, int config){
+	public int[][] fireMissile(Player other, int x, int y, int config){
+		int[][] returnArr = {{-1, 0, 0}};
 		if (numMissiles == 0 || config <1 || config>2 || x<1 || x>14 || y<1 || y>10) {
-			return false;
+			return returnArr;
 		}
+		returnArr[0][0]=0;
 		if (config == 1) {
 			for (int i = 0; i < 14; i++) {
 				if (Actions.attack(other, x + i, y)==1) {
+					returnArr[0][0]=1;
+					returnArr[0][1]=x+i;
+					returnArr[0][2]=y;
 					break;
 				}
 			}
 		}else{
 			for (int i = 0; i < 10; i++) {
 				if (Actions.attack(other, x, y + i)==1) {
+					returnArr[0][0]=1;
+					returnArr[0][1]=x;
+					returnArr[0][2]=y+i;
 					break;
 				}
 			}
 		}
 		numMissiles--;
-		return true;
+		return returnArr;
 	}
 	/**
 	 * checks a 3x3 space centered around the <b>x</b> and <b>y</b> coordinates supplied.

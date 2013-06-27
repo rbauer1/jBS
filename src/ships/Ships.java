@@ -63,7 +63,7 @@ public abstract class Ships {
 	 *            missile firing pattern
 	 * @return true if missile fires, false if invalid for some reason
 	 */
-	abstract public boolean fireMissile(Player other, int x, int y, int config);
+	abstract public int[][] fireMissile(Player other, int x, int y, int config);
 
 	// I don't think this is used
 	public void missileUpdate(int i) {

@@ -22,9 +22,10 @@ public class Aircraft extends Ships {
 		}
 	}
 
-	public boolean fireMissile(Player other, int x, int y, int config) {
+	public int[][] fireMissile(Player other, int x, int y, int config) {
 		System.out.println("Aircraft have no missiles");
-		return false;
+		int[][] returnArr= {{-1}};
+		return returnArr;
 	}
 
 	/**
