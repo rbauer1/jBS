@@ -42,7 +42,9 @@ public class Driver {
 			if (testObject.isDisplayHitBoards()) {
 				ai1.printHits();
 				System.out.println("-------------------------------");
-				ai2.printHits();
+				if(!testObject.isPlayerIncluded()){
+				    ai2.printHits();
+				}
 			}
 		}
 		System.out.println(ai1.getName());
@@ -51,11 +53,13 @@ public class Driver {
 			System.out
 					.println("Average Turns per win: " + AI1average / AI1wins);
 		}
-		System.out.println(ai2.getName());
+		if(!testObject.isPlayerIncluded()){
+		    System.out.println(ai2.getName());
 		System.out.println("Number of Wins: " + AI2wins);
 		if (AI2wins > 0) {
 			System.out
 					.println("Average Turns per win: " + AI2average / AI2wins);
+		}
 		}
 	}
 
@@ -82,7 +86,7 @@ public class Driver {
 	}
 
 	public static void initialize() throws IOException {
-		Scanner sc = new Scanner(new File("shipsTest4.txt"));
+		Scanner sc = new Scanner(new File("shipsTest5.txt"));
 		String[] input = sc.nextLine().split(" ");
 		AircraftCarrier ac = new AircraftCarrier(Integer.parseInt(input[0]),
 				Integer.parseInt(input[1]), Integer.parseInt(input[2]));

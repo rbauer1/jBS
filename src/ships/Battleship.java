@@ -16,7 +16,7 @@ public class Battleship extends Ships {
 
 	public int[][] fireMissile(Player other, int x, int y, int config) {
 		int[][] returnArr = { { -1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-				{ 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
 		if (x < 2 || x > 13 || y < 2 || y > 9 || config < 1 || config > 2
 				|| numMissiles == 0) {
 			return returnArr;

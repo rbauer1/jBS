@@ -45,7 +45,7 @@ public class AI4_1 implements AI {
      */
     private boolean[] otherShipsSunk;
     int smallestRemainingShip = 2;
-    // boolean debugFirstShot = true;
+    int debugCount = 0;
     int lastHit = -1;
     boolean lastShipSunk = true;
     private SubScanForAI lastSubScan;
@@ -417,6 +417,7 @@ public class AI4_1 implements AI {
                             && (countD + countU + 1 < lengthOfShipExamined)) {
                         if (lengthOfShipExamined == smallestRemainingShip) {
                             hits[i][j] = Statuses.DEADSPACE;
+                            updateProbMiss(j, i);
                         } else {
                             switch (lengthOfShipExamined) {
                                 case 2:
@@ -608,7 +609,10 @@ public class AI4_1 implements AI {
         for (int i = 2; i < 6; i++) {
             removeDeadSpaces(i);
         }
-
+        debugCount++;
+        if(debugCount>1000){
+            System.out.println("It's dead Jim");
+        }
         Random gen = new Random();
         // This array either holds the last ship hit
         // pos[2]==1, the location of possible ship from
@@ -633,6 +637,7 @@ public class AI4_1 implements AI {
                     }
                     if (missileResults[0][0] == 1) {
                         hits[shot1][cutOff] = determineShip(cutOff, shot1);
+                        updateProbMiss(cutOff, shot1);
                     }
                 } else {
                     missileResults = pThis.getSub().fireMissile(pOther, 1, shot2, 1);
@@ -645,6 +650,7 @@ public class AI4_1 implements AI {
                     }
                     if (missileResults[0][0] == 1) {
                         hits[shot2][cutOff] = determineShip(cutOff, shot2);
+                        updateProbMiss(cutOff, shot2);
                     }
                 }
 
@@ -780,6 +786,7 @@ public class AI4_1 implements AI {
                                 yMove++;
                             }
                         }
+                        
                         if ((hits[pos[0] + yMove][pos[1] + xMove] == Statuses.UNKNOWN && pos[0] + yMove >0 && pos[0] + yMove<12 &&pos[1] + xMove>0 &&pos[1] + xMove<16)
                                 || hits[pos[0] + yMove][pos[1] + xMove] == Statuses.SUBSCAN) {
                             switch (Actions.attack(pOther, pos[1] + xMove, pos[0] + yMove)) {
