@@ -1,14 +1,17 @@
 package base;
 
+import base.AI4_1.Statuses;
+
 public class SubScanForAI {
-	private int[][] scanArray = new int[3][3];
+	private Statuses[][] scanArray = new Statuses[3][3];
+	private int[][] scanArrayInt = new int[3][3];
 	private int centerX;
 	private int centerY;
 	private boolean shipFound = false;
 	// as long as this scan is relevant, it is true
 	private boolean relevant = true;
 
-	public SubScanForAI(int x, int y, int[][] hitMap) {
+	public SubScanForAI(int x, int y, Statuses[][] hitMap) {
 		centerX = x;
 		centerY = y;
 		for (int i = -1; i < 2; i++) {
@@ -17,6 +20,17 @@ public class SubScanForAI {
 			}
 		}
 	}
+	
+	//redundant method for legacy AIs (before enum)
+	public SubScanForAI(int x, int y, int[][] hitMap) {
+        centerX = x;
+        centerY = y;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                scanArrayInt[i + 1][j + 1] = hitMap[y + i][x + j];
+            }
+        }
+    }
 
 	/**
 	 * this updates this subscan's array and determines if it is still relevant
@@ -25,14 +39,14 @@ public class SubScanForAI {
 	 *            (hit board)
 	 * @return true if need to rescan area, false else
 	 */
-	public boolean update(int[][] hitUpdate) {
+	public boolean update(Statuses[][] hitUpdate) {
 		boolean rescan = false;
-		int temp = 0;
+		Statuses temp = Statuses.UNKNOWN;
 		for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
 				temp = hitUpdate[centerY + i][centerX + j];
 				scanArray[i + 1][j + 1] = temp;
-				if (temp > 0 || temp == -4) {
+				if (temp==Statuses.BS || temp==Statuses.CR|| temp ==Statuses.SUBSCAN || temp ==Statuses.DES|| temp ==Statuses.SUB|| temp ==Statuses.PB) {
 					shipFound = true;
 				}
 			}
@@ -42,6 +56,25 @@ public class SubScanForAI {
 		}
 		return rescan;
 	}
+	
+	//legacy method for before enum
+	public boolean update(int[][] hitUpdate) {
+        boolean rescan = false;
+        int temp = 0;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                temp = hitUpdate[centerY + i][centerX + j];
+                scanArrayInt[i + 1][j + 1] = temp;
+                if (temp>0) {
+                    shipFound = true;
+                }
+            }
+        }
+        if (shipFound) {
+            rescan = findShipExhaustedOld();
+        }
+        return rescan;
+    }
 
 	/**
 	 * This method determines if a ship in or passing through the subscan has
@@ -55,7 +88,7 @@ public class SubScanForAI {
 		boolean rescan = false;
 		outer: for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
-				if (scanArray[i + 1][j + 1] == -2) { // no sunkenships in this
+				if (scanArray[i + 1][j + 1] == Statuses.SUNK) { // no sunkenships in this
 													 // area
 					rescan = true;
 					break outer;
@@ -67,6 +100,24 @@ public class SubScanForAI {
 		}
 		return rescan;
 	}
+	
+	//legacy method for before enum
+	public boolean findShipExhaustedOld() {
+        boolean rescan = false;
+        outer: for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                if (scanArrayInt[i + 1][j + 1] == -2) { // no sunkenships in this
+                                                     // area
+                    rescan = true;
+                    break outer;
+                }
+            }
+        }
+        if(rescan){
+            setRelevance(false);
+        }
+        return rescan;
+    }
 
 	public void setRelevance(boolean r) {
 		relevant = r;

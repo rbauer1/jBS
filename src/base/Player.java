@@ -59,6 +59,18 @@ public class Player {
 		return (Aircraft)ships[4+i];
 	}
 	
+	/**
+	 * returns a all Ships objects representing the ships this player controls. 
+     * they are as follows<br/>
+     * 0 == aircraft carrier<br/>
+     * 1 == battleship <br/>
+     * 2 == destroyer <br/>
+     * 3 == submarine <br/>
+     * 4 == patrol boat <br/>
+     * 5 == aircraft1 <br/>
+     * 6 == aircraft2 <br/>
+	 * @return
+	 */
 	public Ships[] getAllShips(){
 		return ships;
 	}
