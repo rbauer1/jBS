@@ -35,7 +35,7 @@ public class Driver {
 			Display d = new Display(p1, p2);
 			while (!gameOver()) {
 			    long time=System.currentTimeMillis();
-			    while(System.currentTimeMillis()-time<500);
+			    while(System.currentTimeMillis()-time<200);
 				debugCount++;
 				if (testObject.isPlayerIncluded()) {
 					progressTurnOnePlayer();
@@ -74,6 +74,7 @@ public class Driver {
 	public static void main(String[] args) throws IOException {
 		TestPanel tp = new TestPanel();
 		testObject = tp.getTestObject();
+		tp.dispose();
 		System.out.println(testObject.getNumberOfTestRuns());
 		testRun(testObject.getNumberOfTestRuns());
 		

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,7 +12,6 @@ import javax.swing.JPanel;
 
 import ships.Aircraft;
 import ships.Ships.ShipType;
-
 import base.Board.TileStatus;
 
 public class Display {
@@ -111,7 +111,7 @@ public class Display {
 
 
     }
-
+    
     public void updateBoards() {
         updateYourBoard();
         updateOpponentBoard();

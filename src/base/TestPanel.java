@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -18,7 +19,11 @@ import javax.swing.JToggleButton;
 import base.Driver.AIName;
 
 public class TestPanel extends JFrame {
-	private TestObject testObject;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private TestObject testObject;
 	private JButton runButton;
 	private JComboBox firstAIChoice;
 	private JComboBox secondAIChoice;
@@ -84,7 +89,7 @@ public class TestPanel extends JFrame {
 		navigationPanel.add(secondAIChoice);
 		navigationPanel.add(runButton);
 		setListeners();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
 		c.setVisible(true);
 		navigationPanel.setVisible(true);
