@@ -44,9 +44,7 @@ public class TestPanel extends JFrame {
 		displayHitBoards = false;
 		displayShipsSunk = false;
 		setBounds(50, 50, xDim, yDim);
-		setVisible(true);
 		Container c = this.getContentPane();
-		c.setVisible(true);
 		numRunsLabel = new JLabel("Enter the number of test games");
 		numRunsField = new JTextField(10);
 		runButton = new JButton("Run");
@@ -61,7 +59,6 @@ public class TestPanel extends JFrame {
 		displayShipsSunkToggle.setText("Display when ships are sunk");
 		navigationPanel = new JPanel();
 		navigationPanel.setBounds(0, 0, xDim, yDim);
-		navigationPanel.setVisible(true);
 		navigationPanel.setLayout(new GridLayout(5, 2, 10, 10));
 		/*
 		 * this next thing should be modified at somepoint so it doesn't need to
@@ -88,6 +85,9 @@ public class TestPanel extends JFrame {
 		navigationPanel.add(runButton);
 		setListeners();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+		c.setVisible(true);
+		navigationPanel.setVisible(true);
 	}
 
 	private void setListeners() {

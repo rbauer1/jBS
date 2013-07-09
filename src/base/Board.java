@@ -244,6 +244,8 @@ public class Board {
 		
 		return UIBoard;
 	}
+	
+	
 
 	public boolean statusUnknown(TileStatus ts) {
 		return ts == TileStatus.EMPTY || ts == TileStatus.SHIP

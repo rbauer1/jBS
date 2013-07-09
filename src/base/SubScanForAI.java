@@ -1,6 +1,6 @@
 package base;
 
-import base.AI4_1.Statuses;
+import base.AI.Statuses;
 
 public class SubScanForAI {
 	private Statuses[][] scanArray = new Statuses[3][3];
@@ -9,6 +9,7 @@ public class SubScanForAI {
 	private int centerY;
 	private boolean shipFound = false;
 	// as long as this scan is relevant, it is true
+	//is this used?
 	private boolean relevant = true;
 
 	public SubScanForAI(int x, int y, Statuses[][] hitMap) {

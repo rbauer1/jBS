@@ -1,7 +1,10 @@
 package base;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 
 import ships.Aircraft;
@@ -29,12 +32,17 @@ public class Driver {
 	public static void testRun(int numRuns) throws IOException {
 		for (int i = 0; i < numRuns; i++) {
 			initialize();
+			Display d = new Display(p1, p2);
 			while (!gameOver()) {
+			    long time=System.currentTimeMillis();
+			    while(System.currentTimeMillis()-time<500);
 				debugCount++;
 				if (testObject.isPlayerIncluded()) {
 					progressTurnOnePlayer();
+					d.updateBoards();
 				} else {
 					progressTurnNoPlayers();
+					d.updateBoards();
 				}
 			}
 			System.out.println("In " + debugCount + " turns!");
@@ -64,13 +72,14 @@ public class Driver {
 	}
 
 	public static void main(String[] args) throws IOException {
-		// Display d = new Display();
-		// action = new Actions();
 		TestPanel tp = new TestPanel();
 		testObject = tp.getTestObject();
 		System.out.println(testObject.getNumberOfTestRuns());
 		testRun(testObject.getNumberOfTestRuns());
-		System.exit(0);
+		
+//		System.exit(0);
+		
+
 		// initialize();
 		// while (!gameOver()) {
 		// debugCount++;
@@ -78,7 +87,7 @@ public class Driver {
 		// try {
 		// Thread.sleep(1000);
 		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
+		// 
 		// e.printStackTrace();
 		// }
 		// progressTurn();
@@ -86,6 +95,7 @@ public class Driver {
 	}
 
 	public static void initialize() throws IOException {
+	    initializeShips();
 		Scanner sc = new Scanner(new File("shipsTest5.txt"));
 		String[] input = sc.nextLine().split(" ");
 		AircraftCarrier ac = new AircraftCarrier(Integer.parseInt(input[0]),
@@ -111,6 +121,7 @@ public class Driver {
 		Ships[] ships = { ac, bs, de, sub, pb, a1, a2 };
 		Board b1 = new Board(ships);
 		// System.out.println();
+		initializeShips();
 		sc = new Scanner(new File("shipsTest5.txt"));
 		input = sc.nextLine().split(" ");
 		AircraftCarrier ac2 = new AircraftCarrier(Integer.parseInt(input[0]),
@@ -173,7 +184,6 @@ public class Driver {
 			ai1 = new AI4_1(p2, p1);
 			break;
 		}
-		ai1.initializeShips();
 		if (!testObject.isPlayerIncluded()) {
 			switch (testObject.getSecondAIChosen()) {
 			case NONE:
@@ -198,7 +208,6 @@ public class Driver {
 				ai2 = new AI4_1(p1, p2);
 				break;
 			}
-			ai2.initializeShips();
 		}
 
 	}
@@ -391,5 +400,86 @@ public class Driver {
 		p2.changeTurn();
 		System.out.println("-------------------------------------------");
 	}
+	
+	/**
+	 * This method should probably move to a different class
+	 * @throws IOException
+	 */
+	public static void initializeShips() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter("shipsTest5.txt"));
+        int cols = 14;
+        int rows = 10;
+        int[][] airLocationForWrite = new int[2][2]; // aircraft 1 is index
+        // [0][*]
+        // the second dimension holds first the y coordinate, then the x
+        // coordinate of the aircraft
+        int[][] tempBoard = new int[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                tempBoard[i][j] = 0;
+            }
+        }
+        Random r = new Random();
+        int air1 = r.nextInt(5);
+        int air2 = r.nextInt(5);
+        while (air2 == air1) {
+            air2 = r.nextInt(5);
+        }
+        int[] lengths = {5, 4, 3, 3, 2};
+        int currentShip = 0;
+        boolean flag = false;
+        while (currentShip < lengths.length && !flag) {
+            int orientation = r.nextInt(2);
+            int x = 0;
+            int y = 0;
+            int xAdj = 0;
+            int yAdj = 0;
+            if (orientation == 0) {
+                x = r.nextInt(cols - lengths[currentShip] + 1);
+                y = r.nextInt(rows);
+                xAdj = 1;
+            } else {
+                x = r.nextInt(cols);
+                y = r.nextInt(rows - lengths[currentShip] + 1);
+                yAdj = 1;
+            }
+            for (int i = 0; i < lengths[currentShip] && !flag; i++) {
+                if (tempBoard[y + yAdj * i][x + xAdj * i] != 0) {
+                    flag = true;
+                }
+            }
+            if (!flag) {
+
+                for (int i = 0; i < lengths[currentShip]; i++) {
+                    tempBoard[y + yAdj * i][x + xAdj * i] = lengths[currentShip];
+                    if (currentShip == 0 && i == air1) {
+                        tempBoard[y + yAdj * i][x + xAdj * i] = 8;
+                        airLocationForWrite[0][0] = y + yAdj * i + 1;
+                        airLocationForWrite[0][1] = x + xAdj * i + 1;
+                    }
+                    if (currentShip == 0 && i == air2) {
+                        tempBoard[y + yAdj * i][x + xAdj * i] = 9;
+                        airLocationForWrite[1][0] = y + yAdj * i + 1;
+                        airLocationForWrite[1][1] = x + xAdj * i + 1;
+                    }
+
+                }
+                bw.write((y + 1) + " " + (x + 1) + " " + orientation + "\n");
+                currentShip++;
+            } else {
+                flag = false;
+            }
+        }
+        bw.write(airLocationForWrite[0][0] + " " + airLocationForWrite[0][1] + " " + 0 + "\n");
+        bw.write(airLocationForWrite[1][0] + " " + airLocationForWrite[1][1] + " " + 0);
+        bw.close();
+        // below is code for printing the board
+        // for (int i = 0; i < rows; i++) {
+        // for (int j = 0; j < cols; j++) {
+        // System.out.print(tempBoard[i][j]+ " ");
+        // }
+        // System.out.println();
+        // }
+    }
 
 }
