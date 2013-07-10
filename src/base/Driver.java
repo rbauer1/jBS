@@ -32,10 +32,10 @@ public class Driver {
 	public static void testRun(int numRuns) throws IOException {
 		for (int i = 0; i < numRuns; i++) {
 			initialize();
-			Display d = new Display(p1, p2);
+			Display d = new Display(p1, p2, ai1);
 			while (!gameOver()) {
 			    long time=System.currentTimeMillis();
-			    while(System.currentTimeMillis()-time<200);
+			    while(System.currentTimeMillis()-time<250);
 				debugCount++;
 				if (testObject.isPlayerIncluded()) {
 					progressTurnOnePlayer();
@@ -53,6 +53,9 @@ public class Driver {
 				if(!testObject.isPlayerIncluded()){
 				    ai2.printHits();
 				}
+			}
+			if((i+1)!=numRuns){
+			    d.dispose();
 			}
 		}
 		System.out.println(ai1.getName());

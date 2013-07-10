@@ -393,8 +393,24 @@ public class AI1 implements AI{
 	}
 	
 	public String getName(){
-		return name;
+	    return name;
 	}
+	
+	public boolean hasProbabilities(){
+	    return false;
+	}
+	
+	public int[][][][] getProbabilities(){
+        return  null;
+    }
+	
+	/**
+     * called by display for gradient map
+     * @return
+     */
+    public int findHighestProbabilityPublic(){
+        return -1;
+    }
 
 	public void printHits() {
 		System.out.println("Doesn't include negative signs");

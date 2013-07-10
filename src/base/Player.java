@@ -29,7 +29,7 @@ public class Player {
 	}
 	
 	public boolean isAlive(){
-		for(int i=0; i<ships.length; i++){
+		for(int i=0; i<5; i++){
 			if(!ships[i].isThisShipSunk()){
 				return true;
 			}

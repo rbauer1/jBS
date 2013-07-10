@@ -160,6 +160,22 @@ public class AI4_1 implements AI {
             System.out.println();
         }
     }
+    
+    /**
+     * called by display for gradient map
+     * @return
+     */
+    public int findHighestProbabilityPublic(){
+        int max = 0;
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 16; j++) {
+                if (dynamicProb[i][j][1][0] > max) {
+                    max = dynamicProb[i][j][1][0];
+                }
+            }
+        }
+        return max;
+    }
 
     /**
      * 
@@ -838,8 +854,14 @@ public class AI4_1 implements AI {
     public String getName() {
         return name;
     }
+    
+    public boolean hasProbabilities(){
+        return true;
+    }
 
-
+    public int[][][][] getProbabilities(){
+        return  dynamicProb;
+    }
     
     private int statusToIntForPrint(Statuses s){
         switch(s){

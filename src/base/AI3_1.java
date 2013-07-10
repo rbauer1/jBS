@@ -620,6 +620,22 @@ public class AI3_1 implements AI {
 	public String getName() {
 		return name;
 	}
+	
+	public boolean hasProbabilities(){
+        return false;
+    }
+	
+	public int[][][][] getProbabilities(){
+        return  null;
+    }
+	
+	/**
+     * called by display for gradient map
+     * @return
+     */
+    public int findHighestProbabilityPublic(){
+        return -1;
+    }
 
 	public void printHits() {
 		System.out.println("Doesn't include negative signs");
