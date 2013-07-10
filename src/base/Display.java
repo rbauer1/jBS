@@ -40,6 +40,10 @@ public class Display {
     private final int BOARD_SEPARATION_VERTICAL = 400;
     private final int BOARD_SEPARATION_HORIZONTAL = 500;
     
+    public Display(){
+        
+    }
+    
     public Display(Player p2, Player p1, AI ai){
         this.ai = ai;
         this.p1 = p1;
@@ -50,6 +54,7 @@ public class Display {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(Color.RED); // for debugging porpoises
         frame.setLayout(null);
+        frame.setLocation(100, 50);
 
         container = frame.getContentPane();
         container.setBackground(Color.BLACK);
@@ -239,7 +244,7 @@ public class Display {
         probability = aiProbabilities[j][i][1][0]/probMax;
         if(probability == 1){
             return Color.MAGENTA;
-        }else if(!Float.isNaN(probability)){
+        }else if(probability !=0 && !Float.isNaN(probability)){
             return new Color(probability, (probability)/(2-probability), (1-probability)/2);      
         }
         return Color.DARK_GRAY;

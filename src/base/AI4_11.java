@@ -14,21 +14,21 @@ import base.Board.TileStatus;
 
 /**
  * 
- * 6/27/13
+ * 7/10/13
  * 
- * @version 4.1.0
+ * @version 4.1.1
  * @author rbauer
  * 
- *         AI 4, Torpedoes Number of Wins: 76636 Average Turns per win: 88 AI 3 Number of Wins:
- *         23364 Average Turns per win: 99
+ *         AI 4_1, Torpedoes Number of Wins: 51914 Average Turns per win: 82 AI 4_1, Torpedoes
+ *         Number of Wins: 48086 Average Turns per win: 82
  * 
- *         AI 3 Number of Wins: 25841 Average Turns per win: 98 AI 4, Probabilities Number of Wins:
- *         74159 Average Turns per win: 89
+ *         AI 4_11, Torpedoes Number of Wins: 52069 Average Turns per win: 82 AI 4_1, Torpedoes
+ *         Number of Wins: 47931 Average Turns per win: 82
  */
-public class AI4_1 implements AI {
+public class AI4_11 implements AI {
     private Player pOther;
     private Player pThis;
-    private String name = "AI 4_1, Torpedoes";
+    private String name = "AI 4_11, Torpedoes";
     // 0 for untouched, 1 for hit, -1 for miss,
     // -2 for sunken ships, -4 for subscan, -3 for deadspace
     private Statuses[][] hits;
@@ -58,7 +58,7 @@ public class AI4_1 implements AI {
      * @param pThis This Player
      * @throws IOException
      */
-    public AI4_1(Player pOther, Player pThis) throws IOException {
+    public AI4_11(Player pOther, Player pThis) throws IOException {
         this.pOther = pOther;
         this.pThis = pThis;
         otherShipsSunk = new boolean[5];
@@ -160,12 +160,13 @@ public class AI4_1 implements AI {
             System.out.println();
         }
     }
-    
+
     /**
      * called by display for gradient map
+     * 
      * @return
      */
-    public int findHighestProbabilityPublic(){
+    public int findHighestProbabilityPublic() {
         int max = 0;
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 16; j++) {
@@ -228,7 +229,7 @@ public class AI4_1 implements AI {
         }
     }
 
-    
+
 
     /**
      * This method combs through this AI's hits matrix and determines if it knows the position of a
@@ -289,8 +290,8 @@ public class AI4_1 implements AI {
      * "smallestRemainingShip" which is the length of the the smallest remaining live ship possessed
      * by the opponent to determine if the current space could possibly contain said ship.<br />
      * <br />
-     * The checks if (hits[i + k][j] == Statuses.CR, BS, DES, etc && hits[i + k][j] != Statuses.SUBSCAN) { and the like might be able to be
-     * changed to !=0 instead of < 0
+     * The checks if (hits[i + k][j] == Statuses.CR, BS, DES, etc && hits[i + k][j] !=
+     * Statuses.SUBSCAN) { and the like might be able to be changed to !=0 instead of < 0
      */
 
     private void removeDeadSpaces(int lengthOfShipExamined) {
@@ -315,7 +316,8 @@ public class AI4_1 implements AI {
                             // makes sure there are no misses/dead ships in the
                             // path but does acknowledge that subscans are
                             // inconclusive (-4)
-                            if (hits[i + k][j]==Statuses.DEADSPACE || hits[i + k][j]==Statuses.SUNK) {
+                            if (hits[i + k][j] == Statuses.DEADSPACE
+                                    || hits[i + k][j] == Statuses.SUNK) {
                                 checkD = false;
                             } else
                                 countD++;
@@ -326,7 +328,8 @@ public class AI4_1 implements AI {
                         if (i - k < 0) {
                             checkU = false;
                         } else {
-                            if (hits[i - k][j]==Statuses.SUNK ||hits[i - k][j]==Statuses.DEADSPACE) {
+                            if (hits[i - k][j] == Statuses.SUNK
+                                    || hits[i - k][j] == Statuses.DEADSPACE) {
                                 checkU = false;
                             } else
                                 countU++;
@@ -337,7 +340,8 @@ public class AI4_1 implements AI {
                         if (j + k > 15) {
                             checkR = false;
                         } else {
-                            if (hits[i][j + k]==Statuses.SUNK ||hits[i][j + k]==Statuses.DEADSPACE) {
+                            if (hits[i][j + k] == Statuses.SUNK
+                                    || hits[i][j + k] == Statuses.DEADSPACE) {
                                 checkR = false;
                             } else
                                 countR++;
@@ -348,7 +352,8 @@ public class AI4_1 implements AI {
                         if (j - k < 0) {
                             checkL = false;
                         } else {
-                            if (hits[i][j - k]==Statuses.SUNK||hits[i][j - k]==Statuses.DEADSPACE) {
+                            if (hits[i][j - k] == Statuses.SUNK
+                                    || hits[i][j - k] == Statuses.DEADSPACE) {
                                 checkL = false;
                             } else
                                 countL++;
@@ -377,7 +382,7 @@ public class AI4_1 implements AI {
                             }
                         }
                     } else if (!checkL || !checkR || !checkU || !checkD) {
-                        lowerProbs(i, j, lengthOfShipExamined, checkL, checkR, checkU, checkD);
+                        lowerProbs(i, j, lengthOfShipExamined, countL, countR, countU, countD);
                     }
                 }
             }
@@ -398,13 +403,15 @@ public class AI4_1 implements AI {
      * @param checkU can fit going up?
      * @param checkD can fit going down?
      */
-    private void lowerProbs(int i, int j, int lengthOfShipExamined, boolean checkL, boolean checkR,
-            boolean checkU, boolean checkD) {
+    private void lowerProbs(int i, int j, int lengthOfShipExamined, int countL, int countR,
+            int countU, int countD) {
         double adj = 1;
-        if (!checkL) adj -= 0.25;
-        if (!checkR) adj -= 0.25;
-        if (!checkU) adj -= 0.25;
-        if (!checkD) adj -= 0.25;
+        if (countL + 1 < lengthOfShipExamined) adj -= 0.22;
+        if (countR + 1 < lengthOfShipExamined) adj -= 0.22;
+        if (countU + 1 < lengthOfShipExamined) adj -= 0.22;
+        if (countD + 1 < lengthOfShipExamined) adj -= 0.22;
+        if (countL + countR + 1 < lengthOfShipExamined) adj -= 0.06;
+        if (countU + countD + 1 < lengthOfShipExamined) adj -= 0.06;
         switch (lengthOfShipExamined) {
             case 2:
                 dynamicProb[i][j][1][4] = (int) (dynamicProb[i][j][0][4] * adj);
@@ -445,7 +452,8 @@ public class AI4_1 implements AI {
             y = gen.nextInt(8) + 2;
             // this loop just makes it a little less likely that the AI will
             // scan on top of a already known miss
-            while (hits[y][x] == Statuses.DEADSPACE || hits[y][x] == Statuses.SUNK && gen.nextInt(10) > 0) {
+            while (hits[y][x] == Statuses.DEADSPACE || hits[y][x] == Statuses.SUNK
+                    && gen.nextInt(10) > 0) {
                 x = gen.nextInt(12) + 2;
                 y = gen.nextInt(8) + 2;
             }
@@ -475,28 +483,30 @@ public class AI4_1 implements AI {
     private void subScan(int x, int y, boolean makeNewSubScanForAI) {
         if (makeNewSubScanForAI) {
             if (x > 2) {
-                if ((hits[y][x + 1]==Statuses.DEADSPACE)&&(hits[y + 1][x + 1]==Statuses.DEADSPACE)&&(hits[y - 1][x + 1]==Statuses.DEADSPACE)) {
+                if ((hits[y][x + 1] == Statuses.DEADSPACE)
+                        && (hits[y + 1][x + 1] == Statuses.DEADSPACE)
+                        && (hits[y - 1][x + 1] == Statuses.DEADSPACE)) {
                     x--;
                 }
             }
             if (x < 13) {
-                if ((hits[y][x - 1]==Statuses.DEADSPACE ||hits[y][x - 1]==Statuses.SUNK)
-                        && (hits[y + 1][x - 1]==Statuses.SUNK ||hits[y + 1][x - 1]==Statuses.DEADSPACE)
-                        && (hits[y - 1][x - 1]==Statuses.SUNK ||hits[y - 1][x - 1]==Statuses.DEADSPACE)) {
+                if ((hits[y][x - 1] == Statuses.DEADSPACE || hits[y][x - 1] == Statuses.SUNK)
+                        && (hits[y + 1][x - 1] == Statuses.SUNK || hits[y + 1][x - 1] == Statuses.DEADSPACE)
+                        && (hits[y - 1][x - 1] == Statuses.SUNK || hits[y - 1][x - 1] == Statuses.DEADSPACE)) {
                     x++;
                 }
             }
             if (y > 2) {
-                if ((hits[y + 1][x]==Statuses.SUNK||hits[y + 1][x]==Statuses.DEADSPACE )
-                        && (hits[y + 1][x + 1]==Statuses.SUNK ||hits[y + 1][x + 1]==Statuses.DEADSPACE) 
-                        && (hits[y + 1][x - 1]==Statuses.SUNK || hits[y + 1][x - 1]==Statuses.DEADSPACE)) {
+                if ((hits[y + 1][x] == Statuses.SUNK || hits[y + 1][x] == Statuses.DEADSPACE)
+                        && (hits[y + 1][x + 1] == Statuses.SUNK || hits[y + 1][x + 1] == Statuses.DEADSPACE)
+                        && (hits[y + 1][x - 1] == Statuses.SUNK || hits[y + 1][x - 1] == Statuses.DEADSPACE)) {
                     y--;
                 }
             }
             if (y < 9) {
-                if ((hits[y - 1][x]==Statuses.SUNK || hits[y - 1][x]==Statuses.DEADSPACE)
-                        && (hits[y - 1][x - 1]==Statuses.SUNK || hits[y - 1][x - 1]==Statuses.DEADSPACE)
-                        && (hits[y - 1][x + 1]==Statuses.SUNK ||hits[y - 1][x + 1]==Statuses.DEADSPACE)) {
+                if ((hits[y - 1][x] == Statuses.SUNK || hits[y - 1][x] == Statuses.DEADSPACE)
+                        && (hits[y - 1][x - 1] == Statuses.SUNK || hits[y - 1][x - 1] == Statuses.DEADSPACE)
+                        && (hits[y - 1][x + 1] == Statuses.SUNK || hits[y - 1][x + 1] == Statuses.DEADSPACE)) {
                     y++;
                 }
             }
@@ -513,7 +523,8 @@ public class AI4_1 implements AI {
         // or with -4s (possibly ship coordinate)
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
-                if (hits[y + i][x + j] == Statuses.UNKNOWN || hits[y + i][x + j] == Statuses.SUBSCAN) {
+                if (hits[y + i][x + j] == Statuses.UNKNOWN
+                        || hits[y + i][x + j] == Statuses.SUBSCAN) {
                     hits[y + i][x + j] = newValue;
                     if (newValue == Statuses.DEADSPACE) {
                         updateProbMiss(x + j, y + i);
@@ -551,7 +562,7 @@ public class AI4_1 implements AI {
             removeDeadSpaces(i);
         }
         debugCount++;
-        if(debugCount>1000){
+        if (debugCount > 1000) {
             System.out.println("It's dead Jim");
         }
         Random gen = new Random();
@@ -716,19 +727,25 @@ public class AI4_1 implements AI {
                                 yMove = 1;
                                 break;
                         }
-                        while (hits[pos[0] + yMove][pos[1] + xMove]== Statuses.CR || hits[pos[0] + yMove][pos[1] + xMove]== Statuses.BS || hits[pos[0] + yMove][pos[1] + xMove]== Statuses.DES || hits[pos[0] + yMove][pos[1] + xMove]== Statuses.SUB || hits[pos[0] + yMove][pos[1] + xMove]== Statuses.PB) {
-                            if(xMove<0){
+                        while (hits[pos[0] + yMove][pos[1] + xMove] == Statuses.CR
+                                || hits[pos[0] + yMove][pos[1] + xMove] == Statuses.BS
+                                || hits[pos[0] + yMove][pos[1] + xMove] == Statuses.DES
+                                || hits[pos[0] + yMove][pos[1] + xMove] == Statuses.SUB
+                                || hits[pos[0] + yMove][pos[1] + xMove] == Statuses.PB) {
+                            if (xMove < 0) {
                                 xMove--;
-                            }else if(xMove>0){
+                            } else if (xMove > 0) {
                                 xMove++;
-                            }else if(yMove<0){
+                            } else if (yMove < 0) {
                                 yMove--;
-                            }else if(yMove>0){
+                            } else if (yMove > 0) {
                                 yMove++;
                             }
                         }
-                        
-                        if ((hits[pos[0] + yMove][pos[1] + xMove] == Statuses.UNKNOWN && pos[0] + yMove >0 && pos[0] + yMove<12 &&pos[1] + xMove>0 &&pos[1] + xMove<16)
+
+                        if ((hits[pos[0] + yMove][pos[1] + xMove] == Statuses.UNKNOWN
+                                && pos[0] + yMove > 0 && pos[0] + yMove < 12 && pos[1] + xMove > 0 && pos[1]
+                                + xMove < 16)
                                 || hits[pos[0] + yMove][pos[1] + xMove] == Statuses.SUBSCAN) {
                             switch (Actions.attack(pOther, pos[1] + xMove, pos[0] + yMove)) {
                                 case 0:
@@ -854,27 +871,37 @@ public class AI4_1 implements AI {
     public String getName() {
         return name;
     }
-    
-    public boolean hasProbabilities(){
+
+    public boolean hasProbabilities() {
         return true;
     }
 
-    public int[][][][] getProbabilities(){
-        return  dynamicProb;
+    public int[][][][] getProbabilities() {
+        return dynamicProb;
     }
-    
-    private int statusToIntForPrint(Statuses s){
-        switch(s){
-            case CR: return 9;
-            case BS: return 8;
-            case DES: return 7;
-            case SUB: return 6;
-            case PB: return 5;
-            case DEADSPACE: return 1;
-            case SUNK: return 2;
-            case SUBSCAN: return 4;
-            case UNKNOWN: return 0;
-            default: return 99;
+
+    private int statusToIntForPrint(Statuses s) {
+        switch (s) {
+            case CR:
+                return 9;
+            case BS:
+                return 8;
+            case DES:
+                return 7;
+            case SUB:
+                return 6;
+            case PB:
+                return 5;
+            case DEADSPACE:
+                return 1;
+            case SUNK:
+                return 2;
+            case SUBSCAN:
+                return 4;
+            case UNKNOWN:
+                return 0;
+            default:
+                return 99;
         }
     }
 

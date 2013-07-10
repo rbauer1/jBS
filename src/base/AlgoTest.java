@@ -226,8 +226,8 @@ public class AlgoTest {
 
 						}
 					} else if (!checkL || !checkR || !checkU || !checkD) {
-						lowerProbs(i, j, lengthOfShipExamined, checkL, checkR,
-								checkU, checkD);
+						lowerProbs(i, j, lengthOfShipExamined, countL, countR,
+						    countU, countD);
 					}
 				}
 			}
@@ -235,16 +235,23 @@ public class AlgoTest {
 	}
 
 	private static void lowerProbs(int i, int j, int lengthOfShipExamined,
-			boolean checkL, boolean checkR, boolean checkU, boolean checkD) {
+			int countL, int countR, int countU, int countD) {
 		double adj = 1;
-		if (!checkL)
-			adj -= 0.25;
-		if (!checkR)
-			adj -= 0.25;
-		if (!checkU)
-			adj -= 0.25;
-		if (!checkD)
-			adj -= 0.25;
+		if (countL + 1 < lengthOfShipExamined){
+			adj -= 0.22;
+			if(j==5)
+			System.out.println("HEY THERE "+ j + " " + i + " " + lengthOfShipExamined);
+		}
+		if (countR + 1 < lengthOfShipExamined)
+			adj -= 0.22;
+		if (countU + 1 < lengthOfShipExamined)
+			adj -= 0.22;
+		if (countD + 1 < lengthOfShipExamined)
+			adj -= 0.22;
+		if (countL + countR + 1 < lengthOfShipExamined)
+		    adj -=0.06;
+		if (countU + countD + 1 < lengthOfShipExamined)
+            adj -=0.06;
 		switch (lengthOfShipExamined) {
 		case 2:
 			dynamicProb[i][j][1][4] = (int) (dynamicProb[i][j][0][4] * adj);

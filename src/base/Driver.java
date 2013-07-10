@@ -32,20 +32,24 @@ public class Driver {
 	public static void testRun(int numRuns) throws IOException {
 		for (int i = 0; i < numRuns; i++) {
 			initialize();
-			Display d = new Display(p1, p2, ai1);
+			Display d = new Display();
+			if(testObject.isDisplayGUI()){
+			    d = new Display(p1, p2, ai1);
+			}
 			while (!gameOver()) {
 			    long time=System.currentTimeMillis();
-			    while(System.currentTimeMillis()-time<250);
+			    while(System.currentTimeMillis()-time<testObject.getTurnDelay());
 				debugCount++;
 				if (testObject.isPlayerIncluded()) {
 					progressTurnOnePlayer();
-					d.updateBoards();
 				} else {
 					progressTurnNoPlayers();
-					d.updateBoards();
+				}
+				if(testObject.isDisplayGUI()){
+				    d.updateBoards();
 				}
 			}
-			System.out.println("In " + debugCount + " turns!");
+//			System.out.println("In " + debugCount + " turns!");
 			debugCount = 0;
 			if (testObject.isDisplayHitBoards()) {
 				ai1.printHits();
@@ -54,7 +58,7 @@ public class Driver {
 				    ai2.printHits();
 				}
 			}
-			if((i+1)!=numRuns){
+			if((i+1)!=numRuns && testObject.isDisplayGUI()){
 			    d.dispose();
 			}
 		}
@@ -181,12 +185,21 @@ public class Driver {
 		case AI3_1:
 			ai1 = new AI3_1(p2, p1);
 			break;
+		case AI4_0:
+            ai1 = new AI4_0(p2, p1);
+            break;
+		case AI4_01:
+            ai1 = new AI4_01(p2, p1);
+            break;
 		case AI4:
 			ai1 = new AI4(p2, p1);
 			break;
 		case AI4_1:
 			ai1 = new AI4_1(p2, p1);
 			break;
+		case AI4_11:
+            ai1 = new AI4_11(p2, p1);
+            break;
 		}
 		if (!testObject.isPlayerIncluded()) {
 			switch (testObject.getSecondAIChosen()) {
@@ -205,19 +218,28 @@ public class Driver {
 			case AI3_1:
 				ai2 = new AI3_1(p1, p2);
 				break;
+			case AI4_0:
+			    ai2 = new AI4_0(p1, p2);
+			    break;
+			case AI4_01:
+                ai2 = new AI4_01(p1, p2);
+                break;
 			case AI4:
 				ai2 = new AI4(p1, p2);
 				break;
 			case AI4_1:
 				ai2 = new AI4_1(p1, p2);
 				break;
+			case AI4_11:
+                ai2 = new AI4_11(p1, p2);
+                break;
 			}
 		}
 
 	}
 
 	public enum AIName {
-		NONE, AI, AI2, AI3, AI3_1, AI4, AI4_1
+		NONE, AI, AI2, AI3, AI3_1, AI4_0, AI4_01, AI4, AI4_1, AI4_11
 	}
 
 	/**
@@ -233,13 +255,13 @@ public class Driver {
 
 	public static boolean gameOver() {
 		if (!p1.isAlive()) {
-			System.out.println("PLAYER 2 WINS!!!");
+//			System.out.println("PLAYER 2 WINS!!!");
 			AI2wins++;
 			AI2average += debugCount;
 			return true;
 		}
 		if (!p2.isAlive()) {
-			System.out.println("PLAYER 1 WINS!!!");
+//			System.out.println("PLAYER 1 WINS!!!");
 			AI1wins++;
 			AI1average += debugCount;
 			return true;

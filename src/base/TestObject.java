@@ -4,28 +4,57 @@ import base.Driver.AIName;
 
 public class TestObject {
 	private int numberOfTestRuns;
+	private int turnDelay;
 	private AIName firstAIChosen;
 	private AIName secondAIChosen;
 	private boolean playerIncluded; // true if two AIs battling
 	private boolean displayBoardsTurn; // show boards after each turn
 	private boolean displayHitBoards; // show hit matrices from AIs after game
+	private boolean displayGUI;
 	/*
 	 * this one might require some code changes, currently the code that
 	 * controls this is in the Ships class
 	 */
 	private boolean displayShipsSunk;
-	public TestObject(int numberOfTestRuns, AIName firstAIChosen,
+	public TestObject(int numberOfTestRuns, int turnDelay, AIName firstAIChosen,
 			AIName secondAIChosen, boolean playerIncluded, boolean displayBoardsTurn,
-			boolean displayHitBoards, boolean displayShipsSunk) {
+			boolean displayHitBoards, boolean displayShipsSunk, boolean displayGUI) {
 		super();
 		this.numberOfTestRuns = numberOfTestRuns;
+		this.turnDelay = turnDelay;
 		this.firstAIChosen = firstAIChosen;
 		this.secondAIChosen = secondAIChosen;
 		this.playerIncluded = playerIncluded;
 		this.displayBoardsTurn = displayBoardsTurn;
 		this.displayHitBoards = displayHitBoards;
 		this.displayShipsSunk = displayShipsSunk;
+		this.displayGUI = displayGUI;
 	}
+	
+	/**
+     * @return the displayGUI
+     */
+    public boolean isDisplayGUI() {
+        return displayGUI;
+    }
+    /**
+     * @param numberOfTestRuns the numberOfTestRuns to set
+     */
+    public void setDisplayGUI(boolean displayGUI) {
+        this.displayGUI = displayGUI;
+    }
+    /**
+     * @return the turnDelay
+     */
+    public int getTurnDelay() {
+        return turnDelay;
+    }
+    /**
+     * @param numberOfTestRuns the numberOfTestRuns to set
+     */
+    public void setTurnDelay(int turnDelay) {
+        this.turnDelay = turnDelay;
+    }
 	/**
 	 * @return the numberOfTestRuns
 	 */

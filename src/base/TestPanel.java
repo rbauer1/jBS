@@ -28,8 +28,10 @@ public class TestPanel extends JFrame {
 	private JComboBox firstAIChoice;
 	private JComboBox secondAIChoice;
 	private JPanel navigationPanel;
-	private JTextField numRunsField;
 	private JLabel numRunsLabel;
+	private JTextField numRunsField;
+	private JLabel delayLabel;
+	private JTextField delayField;
 	private JToggleButton includePlayerToggle;
 	private boolean includePlayer;
 	private JToggleButton displayBoardsToggle;
@@ -38,6 +40,8 @@ public class TestPanel extends JFrame {
 	private boolean displayHitBoards;
 	private JToggleButton displayShipsSunkToggle;
 	private boolean displayShipsSunk;
+	private JToggleButton displayGUIToggle;
+    private boolean displayGUI;
 	private int xDim = 750;
 	private int yDim = 400;
 	private boolean readyFlag;
@@ -48,10 +52,13 @@ public class TestPanel extends JFrame {
 		displayBoards = false;
 		displayHitBoards = false;
 		displayShipsSunk = false;
+		displayGUI = true;
 		setBounds(50, 50, xDim, yDim);
 		Container c = this.getContentPane();
 		numRunsLabel = new JLabel("Enter the number of test games");
 		numRunsField = new JTextField(10);
+		delayLabel = new JLabel("Enter the wait-time between turns (ms)");
+		delayField = new JTextField(10);
 		runButton = new JButton("Run");
 		includePlayerToggle = new JToggleButton();
 		includePlayerToggle.setText("Include Player");
@@ -62,9 +69,11 @@ public class TestPanel extends JFrame {
 				.setText("Display each AI's Hit Board at the end of each game");
 		displayShipsSunkToggle = new JToggleButton();
 		displayShipsSunkToggle.setText("Display when ships are sunk");
+		displayGUIToggle = new JToggleButton();
+        displayGUIToggle.setText("Display Game GUI (DEFAULT IS TRUE)");
 		navigationPanel = new JPanel();
 		navigationPanel.setBounds(0, 0, xDim, yDim);
-		navigationPanel.setLayout(new GridLayout(5, 2, 10, 10));
+		navigationPanel.setLayout(new GridLayout(6, 2, 10, 10));
 		/*
 		 * this next thing should be modified at somepoint so it doesn't need to
 		 * be hardcoded. This should probably be done through some UI that
@@ -78,16 +87,19 @@ public class TestPanel extends JFrame {
 		// AIChoices.addActionListener(new ActionListener(){
 		// public void
 		// });
-		c.add(navigationPanel);
 		navigationPanel.add(numRunsLabel);
 		navigationPanel.add(numRunsField);
+		navigationPanel.add(delayLabel);
+		navigationPanel.add(delayField);
 		navigationPanel.add(includePlayerToggle);
 		navigationPanel.add(displayBoardsToggle);
 		navigationPanel.add(displayHitBoardsToggle);
 		navigationPanel.add(displayShipsSunkToggle);
 		navigationPanel.add(firstAIChoice);
 		navigationPanel.add(secondAIChoice);
+		navigationPanel.add(displayGUIToggle);
 		navigationPanel.add(runButton);
+		c.add(navigationPanel);
 		setListeners();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
@@ -123,6 +135,15 @@ public class TestPanel extends JFrame {
 				      }
 				   }
 				});
+		displayGUIToggle.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent ev) {
+                   if(ev.getStateChange()==ItemEvent.SELECTED){
+                       displayGUI = false;
+                   } else if(ev.getStateChange()==ItemEvent.DESELECTED){
+                       displayBoards = true;
+                   }
+                }
+             });
 		includePlayerToggle.addItemListener(new ItemListener() {
 			   public void itemStateChanged(ItemEvent ev) {
 				      if(ev.getStateChange()==ItemEvent.SELECTED){
@@ -135,6 +156,7 @@ public class TestPanel extends JFrame {
 		runButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int runs;
+				int delay;
 				try {
 					runs = Integer.parseInt(numRunsField.getText());
 				} catch (java.lang.NumberFormatException ex) {
@@ -142,10 +164,17 @@ public class TestPanel extends JFrame {
 					System.out
 							.println("Invalid or no input for number of runs, now running 1 time");
 				}
+				try {
+                    delay = Integer.parseInt(delayField.getText());
+                } catch (java.lang.NumberFormatException ex) {
+                    delay = 0;
+                    System.out
+                            .println("Invalid or no input for delay time, using \"0ms\"");
+                }
 				AIName ai1 = (AIName) firstAIChoice.getSelectedItem();
 				AIName ai2 = (AIName) secondAIChoice.getSelectedItem();
-				testObject = new TestObject(runs, ai1, ai2, includePlayer,
-						displayBoards, displayHitBoards, displayShipsSunk);
+				testObject = new TestObject(runs, delay, ai1, ai2, includePlayer,
+						displayBoards, displayHitBoards, displayShipsSunk, displayGUI);
 				readyFlag = true;
 			}
 		});
