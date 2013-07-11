@@ -187,12 +187,19 @@ public class AI4_11 implements AI {
     private int[] findHighestProbability() {
         int max = 0;
         int[] pos = new int[2];
+        Random gen = new Random();
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 16; j++) {
                 if (dynamicProb[i][j][1][0] > max) {
                     max = dynamicProb[i][j][1][0];
                     pos[0] = i;
                     pos[1] = j;
+                }else if (dynamicProb[i][j][1][0] == max){
+                    if(gen.nextBoolean()){
+                        max = dynamicProb[i][j][1][0];
+                        pos[0] = i;
+                        pos[1] = j;
+                    }
                 }
             }
         }
