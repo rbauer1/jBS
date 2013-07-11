@@ -92,13 +92,13 @@ public class TestObject {
 		this.secondAIChosen = secondAIChosen;
 	}
 	/**
-	 * @return the aITest
+	 * @return the playerIncluded
 	 */
 	public boolean isPlayerIncluded() {
 		return playerIncluded;
 	}
 	/**
-	 * @param aITest the aITest to set
+	 * @param playerIncluded the playerIncluded to set
 	 */
 	public void setPlayerIncluded(boolean playerIncluded) {
 		this.playerIncluded = playerIncluded;

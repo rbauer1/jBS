@@ -31,11 +31,24 @@ public class Driver {
 
 	public static void testRun(int numRuns) throws IOException {
 		for (int i = 0; i < numRuns; i++) {
-			initialize();
-			Display d = new Display();
+			Display d = null;
 			if(testObject.isDisplayGUI()){
-			    d = new Display(p1, p2, ai1);
+			    d = new Display(testObject.isPlayerIncluded());
 			}
+			if(testObject.isPlayerIncluded()){
+			    while(!d.arePlayerShipsInitialized()){
+			        try {
+		                Thread.sleep(50); //might cause lag, may need to lower
+		            } catch (InterruptedException e) {
+		                // TODO Auto-generated catch block
+		                e.printStackTrace();
+		            }
+			    }
+			    System.out.println("Holla!");
+			    p1 = d.getPlayer();
+			}
+			initialize();
+			d.setPlayersAndAI(p2, p1, ai1);
 			while (!gameOver()) {
 			    long time=System.currentTimeMillis();
 			    while(System.currentTimeMillis()-time<testObject.getTurnDelay());
@@ -129,44 +142,37 @@ public class Driver {
 		Ships[] ships = { ac, bs, de, sub, pb, a1, a2 };
 		Board b1 = new Board(ships);
 		// System.out.println();
-		initializeShips();
-		sc = new Scanner(new File("shipsTest5.txt"));
-		input = sc.nextLine().split(" ");
-		AircraftCarrier ac2 = new AircraftCarrier(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Battleship bs2 = new Battleship(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Destroyer de2 = new Destroyer(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Submarine sub2 = new Submarine(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		PatrolBoat pb2 = new PatrolBoat(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Aircraft a21 = new Aircraft(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]), 1);
-		input = sc.nextLine().split(" ");
-		Aircraft a22 = new Aircraft(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]), 2);
-		Ships[] ships2 = { ac2, bs2, de2, sub2, pb2, a21, a22 };
-		Board b2 = new Board(ships2);
 		p1 = new Player(b1, true, ships);
-		p2 = new Player(b2, false, ships2);
+		if(!testObject.isPlayerIncluded()){
+		    initializeShips();
+	        Scanner sc2 = new Scanner(new File("shipsTest5.txt"));
+	        String[] input2 = sc2.nextLine().split(" ");
+	        AircraftCarrier ac2 = new AircraftCarrier(Integer.parseInt(input2[0]),
+	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
+	        input2 = sc2.nextLine().split(" ");
+	        Battleship bs2 = new Battleship(Integer.parseInt(input2[0]),
+	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
+	        input2 = sc2.nextLine().split(" ");
+	        Destroyer de2 = new Destroyer(Integer.parseInt(input2[0]),
+	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
+	        input2 = sc2.nextLine().split(" ");
+	        Submarine sub2 = new Submarine(Integer.parseInt(input2[0]),
+	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
+	        input2 = sc2.nextLine().split(" ");
+	        PatrolBoat pb2 = new PatrolBoat(Integer.parseInt(input2[0]),
+	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
+	        input2 = sc2.nextLine().split(" ");
+	        Aircraft a12 = new Aircraft(Integer.parseInt(input2[0]),
+	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]), 1);
+	        input2 = sc2.nextLine().split(" ");
+	        Aircraft a22 = new Aircraft(Integer.parseInt(input2[0]),
+	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]), 2);
+	        Ships[] ships2 = { ac2, bs2, de2, sub2, pb2, a12, a22};
+	        Board b2 = new Board(ships2);
+	        p2 = new Player(b2, true, ships2);
+		}
 		/*
 		 * I know there must be a better way to do this. figure it out.
-		 */
-		/*
-		 * ALSO currently the AIs only generate a new board for their NEXT game
-		 * because of the silly way that things are set up. they each have an
-		 * identical method called initializeShips() that generates a shipTest
-		 * file for them that is read by the initializer. AI1 uses shipTest3.txt
-		 * and AI2 uses shipTest4.txt I'm not sure how important it actually is,
-		 * but it probably should be changed so that they generate a new board
-		 * for their current game, instead of their next one.
 		 */
 		switch (testObject.getFirstAIChosen()) {
 		case NONE:

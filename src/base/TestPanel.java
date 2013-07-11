@@ -70,7 +70,7 @@ public class TestPanel extends JFrame {
 		displayShipsSunkToggle = new JToggleButton();
 		displayShipsSunkToggle.setText("Display when ships are sunk");
 		displayGUIToggle = new JToggleButton();
-        displayGUIToggle.setText("Display Game GUI (DEFAULT IS TRUE)");
+        displayGUIToggle.setText("Do NOT Display Game GUI (DEFAULT IS SHOW GUI)");
 		navigationPanel = new JPanel();
 		navigationPanel.setBounds(0, 0, xDim, yDim);
 		navigationPanel.setLayout(new GridLayout(6, 2, 10, 10));
@@ -140,7 +140,7 @@ public class TestPanel extends JFrame {
                    if(ev.getStateChange()==ItemEvent.SELECTED){
                        displayGUI = false;
                    } else if(ev.getStateChange()==ItemEvent.DESELECTED){
-                       displayBoards = true;
+                       displayGUI = true;
                    }
                 }
              });
@@ -148,8 +148,11 @@ public class TestPanel extends JFrame {
 			   public void itemStateChanged(ItemEvent ev) {
 				      if(ev.getStateChange()==ItemEvent.SELECTED){
 				    	  includePlayer = true;
+				    	  displayGUI = true;
+				    	  displayGUIToggle.setEnabled(false);
 				      } else if(ev.getStateChange()==ItemEvent.DESELECTED){
 				    	  includePlayer = false;
+				    	  displayGUIToggle.setEnabled(true);
 				      }
 				   }
 				});
@@ -191,6 +194,7 @@ public class TestPanel extends JFrame {
 				e.printStackTrace();
 			}
 		}
+		if(!readyFlag) System.exit(0); //probably should change this
 		return testObject;
 	}
 }
