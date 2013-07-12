@@ -318,7 +318,14 @@ public class Display {
                                         color = PATROLBOAT_COLOR.darker();
                                         break;
                                 }
-                                if (length == 1) {
+                                if (length == 1 &&
+                                        yourBoard[xx][yy].getBackground()!=CARRIER_COLOR &&
+                                        yourBoard[xx][yy].getBackground()!=AIRCRAFT1_COLOR &&
+                                        yourBoard[xx][yy].getBackground()!=AIRCRAFT2_COLOR &&
+                                        yourBoard[xx][yy].getBackground()!=BATTLESHIP_COLOR &&
+                                        yourBoard[xx][yy].getBackground()!=DESTROYER_COLOR &&
+                                        yourBoard[xx][yy].getBackground()!=SUBMARINE_COLOR &&
+                                        yourBoard[xx][yy].getBackground()!=PATROLBOAT_COLOR) {
                                     yourBoard[xx][yy].setBackground(color);
                                 } else {
                                     int j = 0;
@@ -330,9 +337,17 @@ public class Display {
                                     }
                                     for (int i = -length / 2; i < length - (length / 2); i++) {
                                         if (xx + (i * j) < 15 && xx + (i * j) > 0
-                                                && yy + (i * k) < 11 && yy + (i * k) > 0)
-                                            yourBoard[xx + (i * j)][yy + (i * k)]
-                                                    .setBackground(color);
+                                                && yy + (i * k) < 11 && yy + (i * k) > 0){
+                                            if(yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=CARRIER_COLOR &&
+                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=AIRCRAFT1_COLOR &&
+                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=AIRCRAFT2_COLOR &&
+                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=BATTLESHIP_COLOR &&
+                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=DESTROYER_COLOR &&
+                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=SUBMARINE_COLOR &&
+                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=PATROLBOAT_COLOR)
+                                                yourBoard[xx + (i * j)][yy + (i * k)]
+                                                        .setBackground(color);
+                                        }
                                     }
                                 }
                             } else if (!yourBoard[xx][yy].getBackground().equals(Color.YELLOW)) {
@@ -347,25 +362,47 @@ public class Display {
                                 for (int i = -2; i < 3; i++) {
                                     for (int j = -2; j < 3; j++) {
                                         if (xx + i < 15 && xx + i > 0 && yy + j < 11 && yy + j > 0) {
+                                            if(yourBoard[xx + i][yy + j].getBackground()!=CARRIER_COLOR &&
+                                               yourBoard[xx + i][yy + j].getBackground()!=AIRCRAFT1_COLOR &&
+                                               yourBoard[xx + i][yy + j].getBackground()!=AIRCRAFT2_COLOR &&
+                                               yourBoard[xx + i][yy + j].getBackground()!=BATTLESHIP_COLOR &&
+                                               yourBoard[xx + i][yy + j].getBackground()!=DESTROYER_COLOR &&
+                                               yourBoard[xx + i][yy + j].getBackground()!=SUBMARINE_COLOR &&
+                                               yourBoard[xx + i][yy + j].getBackground()!=PATROLBOAT_COLOR){
+                                            System.out.println((xx + i) + " " + (yy + j));
                                             yourBoard[xx + i][yy + j]
                                                     .setBackground(updateYourBoardHelper(xx + i, yy
                                                             + j));
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            if (!yourBoard[xx][yy].getBackground().equals(Color.YELLOW)) {
+                            }else if (!yourBoard[xx][yy].getBackground().equals(Color.YELLOW)) {
                                 yourBoard[xx][yy].setBackground(updateYourBoardHelper(xx, yy));
                             }
                         }
 
                         @Override
                         public void mousePressed(MouseEvent arg0) {
+//                          if(yourBoard[xx][yy].getBackground()!=CARRIER_COLOR &&
+//                          yourBoard[xx][yy].getBackground()!=AIRCRAFT1_COLOR &&
+//                          yourBoard[xx][yy].getBackground()!=AIRCRAFT2_COLOR &&
+//                          yourBoard[xx][yy].getBackground()!=BATTLESHIP_COLOR &&
+//                          yourBoard[xx][yy].getBackground()!=DESTROYER_COLOR &&
+//                          yourBoard[xx][yy].getBackground()!=SUBMARINE_COLOR &&
+//                          yourBoard[xx][yy].getBackground()!=PATROLBOAT_COLOR)
                             yourBoard[xx][yy].setBackground(new Color(175, 175, 0));
                         }
 
                         @Override
                         public void mouseReleased(MouseEvent arg0) {
+//                            if(yourBoard[xx][yy].getBackground()!=CARRIER_COLOR &&
+//                                        yourBoard[xx][yy].getBackground()!=AIRCRAFT1_COLOR &&
+//                                        yourBoard[xx][yy].getBackground()!=AIRCRAFT2_COLOR &&
+//                                        yourBoard[xx][yy].getBackground()!=BATTLESHIP_COLOR &&
+//                                        yourBoard[xx][yy].getBackground()!=DESTROYER_COLOR &&
+//                                        yourBoard[xx][yy].getBackground()!=SUBMARINE_COLOR &&
+//                                        yourBoard[xx][yy].getBackground()!=PATROLBOAT_COLOR)
                             yourBoard[xx][yy].setBackground(updateYourBoardHelper(xx, yy));
                         }
 
