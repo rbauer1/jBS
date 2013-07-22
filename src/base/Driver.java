@@ -45,7 +45,7 @@ public class Driver {
 		            }
 			    }
 			    System.out.println("Holla!");
-			    p1 = d.getPlayer();
+			    p2 = d.getPlayer();
 			}
 			initialize();
 			d.setPlayersAndAI(p2, p1, ai1);

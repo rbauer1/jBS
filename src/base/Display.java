@@ -68,6 +68,7 @@ public class Display {
     private int[][] playerShips = null;
     private boolean shipsNotPlaced = true;
     private boolean horizontalOrientation = true;
+    private boolean validShipLocation = false;
     private CurrentShip currentShip = CurrentShip.CARRIER;
     public Player p = null;
 
@@ -369,7 +370,7 @@ public class Display {
                                                yourBoard[xx + i][yy + j].getBackground()!=DESTROYER_COLOR &&
                                                yourBoard[xx + i][yy + j].getBackground()!=SUBMARINE_COLOR &&
                                                yourBoard[xx + i][yy + j].getBackground()!=PATROLBOAT_COLOR){
-                                            System.out.println((xx + i) + " " + (yy + j));
+//                                            System.out.println((xx + i) + " " + (yy + j));
                                             yourBoard[xx + i][yy + j]
                                                     .setBackground(updateYourBoardHelper(xx + i, yy
                                                             + j));
@@ -558,12 +559,14 @@ public class Display {
     }
 
     public void updateBoards() {
+        if(!shipsNotPlaced){
         updateYourBoard();
         updateOpponentBoard();
         if (ai.hasProbabilities()) {
             updateProbabilityBoard();
         }
         container.validate();
+        }
     }
 
     private Color getGradientMapColor(int i, int j) {
@@ -708,7 +711,7 @@ public class Display {
             return Color.GRAY;
         }
         if (arePlayerShipsInitialized()) {
-
+            try{
             TileStatus[][] b = p2.getPlayerStatusBoard();
             Color c = new Color(0);
             switch (b[j][i]) {
@@ -763,6 +766,17 @@ public class Display {
                     break;
             }
             return c;
+            }catch(java.lang.NullPointerException n){
+                System.err.println("Null pointer where p2 should be");
+                for(int ii=0; ii<7; ii++){
+                    for(int jj=0; jj<3; jj++){
+                        System.out.print(playerShips[ii][jj]+ " ");
+                    }
+                    System.out.println();
+                }
+                System.exit(1);
+                return Color.DARK_GRAY;
+            }
         } else
             return Color.DARK_GRAY;
     }
