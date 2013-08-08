@@ -628,6 +628,7 @@ public class Display {
         Ships[] s = {ac, bs, de, sub, pb, a1, a2};
         Board b = new Board(s);
         p = new Player(b, false, s);
+        shipsNotPlaced = false;
     }
 
     public void dispose() {
@@ -856,7 +857,7 @@ public class Display {
                     }
                     System.out.println();
                 }
-                System.exit(1);
+//                System.exit(1);
                 return Color.DARK_GRAY;
             }
         } else{
@@ -948,7 +949,6 @@ public class Display {
                 currentShip = CurrentShip.PATROLBOAT;
                 break;
             case PATROLBOAT:
-                shipsNotPlaced = false;
                 initializePlayerShips(playerShips);
                 break;
         }
