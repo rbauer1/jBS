@@ -565,6 +565,9 @@ public class AI4_11 implements AI {
      * 
      */
     public void attack() {
+        //THIS IS INEFFICIENT. SHOULD START AT 5, if 5 FITS, 4, 3, 2 also fit. 
+        //This will require some tweaking of the removeDeadSpaces(int) method,
+        //but it should be done regardless
         for (int i = 2; i < 6; i++) {
             removeDeadSpaces(i);
         }

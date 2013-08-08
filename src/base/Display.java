@@ -29,8 +29,8 @@ public class Display {
     private AI ai = null;
     private JFrame frame;
     private Container container;
-    private JPanel[][] yourBoard;
-    private JPanel[][] opponentBoard;
+    private JPanel[][] yourBoardPanel;
+    private JPanel[][] opponentBoardPanel;
     private JPanel[][] probabilitiesBoard;
     private JLabel[] coordLabels1;
     private JLabel[] coordLabels2;
@@ -57,6 +57,9 @@ public class Display {
     private final Color SUBMARINE_COLOR = new Color(0, 255, 150);
     private final Color PATROLBOAT_COLOR = new Color(0, 255, 200);
 
+    private final int NUM_X_TILES = 15;
+    private final int NUM_Y_TILES = 11;
+    private Statuses[][][] yourBoard;
     private int opX; // these are used for the mouse listener
     private int opY;
     private int yoX;
@@ -97,10 +100,11 @@ public class Display {
             }
         });
 
-
-        yourBoard = new JPanel[15][11];
-        opponentBoard = new JPanel[15][11];
-        probabilitiesBoard = new JPanel[15][11];
+        yourBoard = new Statuses[NUM_X_TILES][NUM_Y_TILES][3];
+        
+        yourBoardPanel = new JPanel[NUM_X_TILES][NUM_Y_TILES];
+        opponentBoardPanel = new JPanel[NUM_X_TILES][NUM_Y_TILES];
+        probabilitiesBoard = new JPanel[NUM_X_TILES][NUM_Y_TILES];
 
         coordLabels1 = new JLabel[24];
         coordLabels2 = new JLabel[24];
@@ -112,38 +116,38 @@ public class Display {
             shipsNotPlaced = false;
         }
 
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 11; j++) {
-                opponentBoard[i][j] = new JPanel();
-                container.add(opponentBoard[i][j]);
-                opponentBoard[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE);
-                opponentBoard[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
+        for (int i = 0; i < NUM_X_TILES; i++) {
+            for (int j = 0; j < NUM_Y_TILES; j++) {
+                opponentBoardPanel[i][j] = new JPanel();
+                container.add(opponentBoardPanel[i][j]);
+                opponentBoardPanel[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE);
+                opponentBoardPanel[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
                 if ((i == 0) ^ (j == 0)) {
-                    opponentBoard[i][j].setBackground(Color.GRAY);
+                    opponentBoardPanel[i][j].setBackground(Color.GRAY);
                     if (i == 0) {
                         coordLabels1[j - 1] = new JLabel((char) (j + 64) + "");
-                        opponentBoard[i][j].add(coordLabels1[j - 1]);
+                        opponentBoardPanel[i][j].add(coordLabels1[j - 1]);
                     }
                     if (j == 0) {
                         coordLabels1[i + 9] = new JLabel(i + "");
-                        opponentBoard[i][j].add(coordLabels1[i + 9]);
+                        opponentBoardPanel[i][j].add(coordLabels1[i + 9]);
                     }
                 } else {
-                    opponentBoard[i][j].setBackground(Color.DARK_GRAY);
+                    opponentBoardPanel[i][j].setBackground(Color.DARK_GRAY);
                 }
                 if (i > 0 && j > 0) {
                     opX = i;
                     opY = j;
-                    opponentBoard[i][j].addMouseListener(new MouseListener() {
+                    opponentBoardPanel[i][j].addMouseListener(new MouseListener() {
                         int xx = opX;
                         int yy = opY;
 
                         @Override
                         public void mouseClicked(MouseEvent arg0) {
-                            opponentBoard[xx][yy].setBackground(Color.YELLOW);
+                            opponentBoardPanel[xx][yy].setBackground(Color.YELLOW);
                             if ((lastClickedOpponentX != 0 && lastClickedOpponentY != 0)
                                     ^ (lastClickedOpponentX == xx && lastClickedOpponentY == yy)) {
-                                opponentBoard[lastClickedOpponentX][lastClickedOpponentY]
+                                opponentBoardPanel[lastClickedOpponentX][lastClickedOpponentY]
                                         .setBackground(updateOpponentBoardHelper(
                                                 lastClickedOpponentX, lastClickedOpponentY));
                             }
@@ -153,59 +157,68 @@ public class Display {
 
                         @Override
                         public void mouseEntered(MouseEvent arg0) {
-                            if (!opponentBoard[xx][yy].getBackground().equals(Color.YELLOW))
-                                opponentBoard[xx][yy].setBackground(updateOpponentBoardHelper(xx,
+                            if (!opponentBoardPanel[xx][yy].getBackground().equals(Color.YELLOW))
+                                opponentBoardPanel[xx][yy].setBackground(updateOpponentBoardHelper(xx,
                                         yy).darker());
                         }
 
                         @Override
                         public void mouseExited(MouseEvent arg0) {
-                            if (!opponentBoard[xx][yy].getBackground().equals(Color.YELLOW))
-                                opponentBoard[xx][yy].setBackground(updateOpponentBoardHelper(xx,
+                            if (!opponentBoardPanel[xx][yy].getBackground().equals(Color.YELLOW))
+                                opponentBoardPanel[xx][yy].setBackground(updateOpponentBoardHelper(xx,
                                         yy));
                         }
 
                         @Override
                         public void mousePressed(MouseEvent arg0) {
-                            opponentBoard[xx][yy].setBackground(new Color(175, 175, 0));
+                            opponentBoardPanel[xx][yy].setBackground(new Color(175, 175, 0));
                         }
 
                         @Override
                         public void mouseReleased(MouseEvent arg0) {
-                            opponentBoard[xx][yy].setBackground(updateOpponentBoardHelper(xx, yy));
+                            opponentBoardPanel[xx][yy].setBackground(updateOpponentBoardHelper(xx, yy));
                         }
 
                     });
                 }
-                opponentBoard[i][j].setVisible(true);
+                opponentBoardPanel[i][j].setVisible(true);
             }
         }
-        opponentBoard[0][0].setBackground(Color.BLACK);
+        opponentBoardPanel[0][0].setBackground(Color.BLACK);
 
 
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 11; j++) {
-                yourBoard[i][j] = new JPanel();
-                yourBoard[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE
+        yourBoard[0][0][0]=Statuses.BLACKSPACE;
+        yourBoard[0][0][1]=Statuses.BLACKSPACE;
+        yourBoard[0][0][2]=Statuses.BLACKSPACE;
+        for (int i = 0; i < NUM_X_TILES; i++) {
+            for (int j = 0; j < NUM_Y_TILES; j++) {
+                yourBoardPanel[i][j] = new JPanel();
+                yourBoardPanel[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE
                         + BOARD_SEPARATION_VERTICAL);
-                yourBoard[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
+                yourBoardPanel[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
                 if ((i == 0) ^ (j == 0)) {
-                    yourBoard[i][j].setBackground(Color.GRAY);
+                    yourBoardPanel[i][j].setBackground(Color.GRAY);
+                    yourBoard[i][j][0]=Statuses.TOP_OR_LEFT;
+                    yourBoard[i][j][1]=Statuses.TOP_OR_LEFT;
+                    yourBoard[i][j][2]=Statuses.TOP_OR_LEFT;
                     if (i == 0) {
                         coordLabels2[j - 1] = new JLabel((char) (j + 64) + "");
-                        yourBoard[i][j].add(coordLabels2[j - 1]);
+                        yourBoardPanel[i][j].add(coordLabels2[j - 1]);
                     }
                     if (j == 0) {
                         coordLabels2[i + 9] = new JLabel(i + "");
-                        yourBoard[i][j].add(coordLabels2[i + 9]);
+                        yourBoardPanel[i][j].add(coordLabels2[i + 9]);
                     }
                 } else {
-                    yourBoard[i][j].setBackground(Color.DARK_GRAY);
+                    yourBoardPanel[i][j].setBackground(Color.DARK_GRAY);
                 }
                 if (i > 0 && j > 0) {
+                    yourBoard[i][j][0]=Statuses.UNKNOWN;
+                    yourBoard[i][j][1]=Statuses.UNKNOWN;
+                    yourBoard[i][j][2]=Statuses.UNKNOWN;
                     yoX = i;
                     yoY = j;
-                    yourBoard[i][j].addMouseListener(new MouseListener() {
+                    yourBoardPanel[i][j].addMouseListener(new MouseListener() {
                         int xx = yoX;
                         int yy = yoY;
 
@@ -214,34 +227,42 @@ public class Display {
                             if (shipsNotPlaced) {
                                 int length = 0;
                                 Color color = Color.BLACK;
+                                Statuses shipType = Statuses.BLACKSPACE;
                                 switch (currentShip) {
                                     case CARRIER:
                                         length = 5;
                                         color = CARRIER_COLOR;
+                                        shipType = Statuses.CR;
                                         break;
                                     case AIRCRAFT1:
                                         length = 1;
                                         color = AIRCRAFT1_COLOR;
+                                        shipType = Statuses.AC1;
                                         break;
                                     case AIRCRAFT2:
                                         length = 1;
                                         color = AIRCRAFT2_COLOR;
+                                        shipType = Statuses.AC2;
                                         break;
                                     case BATTLESHIP:
                                         length = 4;
                                         color = BATTLESHIP_COLOR;
+                                        shipType = Statuses.BS;
                                         break;
                                     case DESTROYER:
                                         length = 3;
                                         color = DESTROYER_COLOR;
+                                        shipType = Statuses.DES;
                                         break;
                                     case SUBMARINE:
                                         length = 3;
                                         color = SUBMARINE_COLOR;
+                                        shipType = Statuses.SUB;
                                         break;
                                     case PATROLBOAT:
                                         length = 2;
                                         color = PATROLBOAT_COLOR;
+                                        shipType = Statuses.PB;
                                         break;
                                 }
                                 int j = 0;
@@ -252,30 +273,49 @@ public class Display {
                                     k++;
                                 }
                                 if (length == 1) {
-                                    yourBoard[xx][yy].setBackground(color);
+                                    if(yourBoard[xx][yy][0]==Statuses.CR){
+                                    yourBoard[xx][yy][1]=shipType;
+                                    yourBoardPanel[xx][yy].setBackground(color);
+                                    System.out.println((yy) + " " + (xx) + " " + 0);
                                     playerShips[thisShip(currentShip)][0] = yy;
                                     playerShips[thisShip(currentShip)][1] = xx;
                                     playerShips[thisShip(currentShip)][2] = 0;
+                                    nextShip(currentShip);
+                                    }else{
+                                        yourBoardPanel[xx][yy].setBackground(Color.RED);
+                                    }
                                 } else {
                                     for (int i = -length / 2; i < length - (length / 2); i++) {
-                                        if (xx + (i * j) < 15 && xx + (i * j) > 0
-                                                && yy + (i * k) < 11 && yy + (i * k) > 0)
-                                            yourBoard[xx + (i * j)][yy + (i * k)]
+                                        if (xx + (i * j) < NUM_X_TILES && xx + (i * j) > 0
+                                                && yy + (i * k) < NUM_Y_TILES && yy + (i * k) > 0){
+                                            yourBoardPanel[xx + (i * j)][yy + (i * k)]
                                                     .setBackground(color);
+                                            }else{
+                                                validShipLocation = false; //might be redundant
+                                                                           //see onMouseEntered
+                                            }
                                     }
-                                    playerShips[thisShip(currentShip)][0] =
-                                            yy + ((-length / 2) * k);
-                                    playerShips[thisShip(currentShip)][1] =
-                                            xx + ((-length / 2) * j);
-                                    playerShips[thisShip(currentShip)][2] = k; // 0 if horizontal, 1
+                                    if(validShipLocation){
+                                        System.out.println((yy + ((-length / 2) * k)) + " " + (xx + ((-length / 2) * j)) + " " + k);
+                                        for (int i = -length / 2; i < length - (length / 2); i++) {
+                                            yourBoard[xx + (i * j)][yy + (i * k)][0]=shipType;
+                                        }
+                                        playerShips[thisShip(currentShip)][0] =
+                                                yy + ((-length / 2) * k); 
+                                        playerShips[thisShip(currentShip)][1] =
+                                                xx + ((-length / 2) * j);
+                                        playerShips[thisShip(currentShip)][2] = k;
+                                        nextShip(currentShip);
+                                    }// 0 if horizontal, 1
                                                                                // if vertical
                                 }
-                                nextShip(currentShip);
+                                printYourBoard();
+//                                nextShip(currentShip); //this should only be called if ship placement is valid when clicked
                             } else {
-                                yourBoard[xx][yy].setBackground(Color.YELLOW);
+                                yourBoardPanel[xx][yy].setBackground(Color.YELLOW);
                                 if ((lastClickedYourX != 0 && lastClickedYourY != 0)
                                         ^ (lastClickedYourX == xx && lastClickedYourY == yy)) {
-                                    yourBoard[lastClickedYourX][lastClickedYourY]
+                                    yourBoardPanel[lastClickedYourX][lastClickedYourY]
                                             .setBackground(updateYourBoardHelper(lastClickedYourX,
                                                     lastClickedYourY));
                                 }
@@ -319,15 +359,8 @@ public class Display {
                                         color = PATROLBOAT_COLOR.darker();
                                         break;
                                 }
-                                if (length == 1 &&
-                                        yourBoard[xx][yy].getBackground()!=CARRIER_COLOR &&
-                                        yourBoard[xx][yy].getBackground()!=AIRCRAFT1_COLOR &&
-                                        yourBoard[xx][yy].getBackground()!=AIRCRAFT2_COLOR &&
-                                        yourBoard[xx][yy].getBackground()!=BATTLESHIP_COLOR &&
-                                        yourBoard[xx][yy].getBackground()!=DESTROYER_COLOR &&
-                                        yourBoard[xx][yy].getBackground()!=SUBMARINE_COLOR &&
-                                        yourBoard[xx][yy].getBackground()!=PATROLBOAT_COLOR) {
-                                    yourBoard[xx][yy].setBackground(color);
+                                if (length == 1 && (yourBoard[xx][yy][0]==Statuses.UNKNOWN || yourBoard[xx][yy][0]==Statuses.CR)) {
+                                    yourBoardPanel[xx][yy].setBackground(color);
                                 } else {
                                     int j = 0;
                                     int k = 0;
@@ -336,23 +369,32 @@ public class Display {
                                     } else {
                                         k++;
                                     }
+                                    validShipLocation = true;
                                     for (int i = -length / 2; i < length - (length / 2); i++) {
-                                        if (xx + (i * j) < 15 && xx + (i * j) > 0
-                                                && yy + (i * k) < 11 && yy + (i * k) > 0){
-                                            if(yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=CARRIER_COLOR &&
-                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=AIRCRAFT1_COLOR &&
-                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=AIRCRAFT2_COLOR &&
-                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=BATTLESHIP_COLOR &&
-                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=DESTROYER_COLOR &&
-                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=SUBMARINE_COLOR &&
-                                                    yourBoard[xx + (i * j)][yy + (i * k)].getBackground()!=PATROLBOAT_COLOR)
-                                                yourBoard[xx + (i * j)][yy + (i * k)]
-                                                        .setBackground(color);
+                                        if (xx + (i * j) >= NUM_X_TILES
+                                                || xx + (i * j) <= 0
+                                                || yy + (i * k) >= NUM_Y_TILES
+                                                || yy + (i * k) <= 0
+                                                || yourBoard[xx + (i * j)][yy + (i * k)][0] != Statuses.UNKNOWN
+                                                || yourBoard[xx + (i * j)][yy + (i * k)][0] == Statuses.BLACKSPACE
+                                                || yourBoard[xx + (i * j)][yy + (i * k)][0] == Statuses.TOP_OR_LEFT) {
+                                            validShipLocation = false;
+                                                break;
+                                            }
+                                    }
+                                    for (int i = -length / 2; i < length - (length / 2); i++) {
+                                        if(validShipLocation){
+                                            yourBoardPanel[xx + (i * j)][yy + (i * k)]
+                                                    .setBackground(color);
+                                        }else if(xx + (i * j) < NUM_X_TILES && xx + (i * j) >= 0
+                                                && yy + (i * k) < NUM_Y_TILES && yy + (i * k) >= 0){
+                                            yourBoardPanel[xx + (i * j)][yy + (i * k)]
+                                                    .setBackground(Color.RED);
                                         }
                                     }
                                 }
-                            } else if (!yourBoard[xx][yy].getBackground().equals(Color.YELLOW)) {
-                                yourBoard[xx][yy].setBackground(updateYourBoardHelper(xx, yy)
+                            } else if (!yourBoardPanel[xx][yy].getBackground().equals(Color.YELLOW)) {
+                                yourBoardPanel[xx][yy].setBackground(updateYourBoardHelper(xx, yy)
                                         .darker());
                             }
                         }
@@ -360,26 +402,21 @@ public class Display {
                         @Override
                         public void mouseExited(MouseEvent arg0) {
                             if (shipsNotPlaced) {
-                                for (int i = -2; i < 3; i++) {
-                                    for (int j = -2; j < 3; j++) {
-                                        if (xx + i < 15 && xx + i > 0 && yy + j < 11 && yy + j > 0) {
-                                            if(yourBoard[xx + i][yy + j].getBackground()!=CARRIER_COLOR &&
-                                               yourBoard[xx + i][yy + j].getBackground()!=AIRCRAFT1_COLOR &&
-                                               yourBoard[xx + i][yy + j].getBackground()!=AIRCRAFT2_COLOR &&
-                                               yourBoard[xx + i][yy + j].getBackground()!=BATTLESHIP_COLOR &&
-                                               yourBoard[xx + i][yy + j].getBackground()!=DESTROYER_COLOR &&
-                                               yourBoard[xx + i][yy + j].getBackground()!=SUBMARINE_COLOR &&
-                                               yourBoard[xx + i][yy + j].getBackground()!=PATROLBOAT_COLOR){
+                                //should these -3s be -2s ?
+                                for (int i = -3; i < 3; i++) {
+                                    for (int j = -3; j < 3; j++) {
+                                        if (xx + i < NUM_X_TILES && xx + i >= 0 && yy + j < NUM_Y_TILES && yy + j >= 0) {
+//                                            if(yourBoard[xx + i][yy + j][0]==Statuses.UNKNOWN || yourBoard[xx + i][yy + j][0]==Statuses.TOP_OR_LEFT){
 //                                            System.out.println((xx + i) + " " + (yy + j));
-                                            yourBoard[xx + i][yy + j]
+                                            yourBoardPanel[xx + i][yy + j]
                                                     .setBackground(updateYourBoardHelper(xx + i, yy
                                                             + j));
-                                            }
+//                                            }
                                         }
                                     }
                                 }
-                            }else if (!yourBoard[xx][yy].getBackground().equals(Color.YELLOW)) {
-                                yourBoard[xx][yy].setBackground(updateYourBoardHelper(xx, yy));
+                            }else if (!yourBoardPanel[xx][yy].getBackground().equals(Color.YELLOW)) {
+                                yourBoardPanel[xx][yy].setBackground(updateYourBoardHelper(xx, yy));
                             }
                         }
 
@@ -392,7 +429,7 @@ public class Display {
 //                          yourBoard[xx][yy].getBackground()!=DESTROYER_COLOR &&
 //                          yourBoard[xx][yy].getBackground()!=SUBMARINE_COLOR &&
 //                          yourBoard[xx][yy].getBackground()!=PATROLBOAT_COLOR)
-                            yourBoard[xx][yy].setBackground(new Color(175, 175, 0));
+                            yourBoardPanel[xx][yy].setBackground(new Color(175, 175, 0));
                         }
 
                         @Override
@@ -404,26 +441,64 @@ public class Display {
 //                                        yourBoard[xx][yy].getBackground()!=DESTROYER_COLOR &&
 //                                        yourBoard[xx][yy].getBackground()!=SUBMARINE_COLOR &&
 //                                        yourBoard[xx][yy].getBackground()!=PATROLBOAT_COLOR)
-                            yourBoard[xx][yy].setBackground(updateYourBoardHelper(xx, yy));
+                            yourBoardPanel[xx][yy].setBackground(updateYourBoardHelper(xx, yy));
+                            //potential problem here during initialization of ships?
+                            
                         }
 
                     });
                 }
-                yourBoard[i][j].setVisible(true);
-                container.add(yourBoard[i][j]);
+                yourBoardPanel[i][j].setVisible(true);
+                container.add(yourBoardPanel[i][j]);
             }
         }
-        yourBoard[0][0].setBackground(Color.BLACK);
+        yourBoardPanel[0][0].setBackground(Color.BLACK);
 
         frame.setVisible(true);
         container.setVisible(true);
+    }
+    
+    private void printYourBoard(){
+            for(int j = 0; j < NUM_Y_TILES; j++){
+                for(int i =0; i< NUM_X_TILES; i++){
+                char c = 'x';
+                switch (yourBoard[i][j][0]) {
+                    case CR:
+                        if(yourBoard[i][j][1]==Statuses.AC1){
+                            c = '@';
+                        }else if(yourBoard[i][j][1]==Statuses.AC2){
+                            c = '#';
+                        }else{
+                            c = 'C';
+                        }
+                        break;
+                    case BS:
+                        c = 'B';
+                        break;
+                    case DES:
+                        c = 'D';
+                        break;
+                    case SUB:
+                        c = 'S';
+                        break;
+                    case PB:
+                        c = 'P';
+                        break;
+                    default:
+                        c = 'X';
+                        break;
+                }
+                System.out.print(c + " ");
+            }
+            System.out.println();
+        }
     }
 
     private void initializeProbabilitiesBoard() {
         if (ai.hasProbabilities()) {
             aiProbabilities = ai.getProbabilities();
-            for (int i = 0; i < 15; i++) {
-                for (int j = 0; j < 11; j++) {
+            for (int i = 0; i < NUM_X_TILES; i++) {
+                for (int j = 0; j < NUM_Y_TILES; j++) {
                     probabilitiesBoard[i][j] = new JPanel();
                     container.add(probabilitiesBoard[i][j]);
                     probabilitiesBoard[i][j].setLocation(i + i * SQ_SIZE
@@ -475,67 +550,68 @@ public class Display {
         container = frame.getContentPane();
         container.setBackground(Color.BLACK);
 
-        yourBoard = new JPanel[15][11];
-        opponentBoard = new JPanel[15][11];
+        yourBoardPanel = new JPanel[NUM_X_TILES][NUM_Y_TILES];
+        opponentBoardPanel = new JPanel[NUM_X_TILES][NUM_Y_TILES];
 
         coordLabels1 = new JLabel[24];
         coordLabels2 = new JLabel[24];
 
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 11; j++) {
-                opponentBoard[i][j] = new JPanel();
-                container.add(opponentBoard[i][j]);
-                opponentBoard[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE);
-                opponentBoard[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
+        for (int i = 0; i < NUM_X_TILES; i++) {
+            for (int j = 0; j < NUM_Y_TILES; j++) {
+                opponentBoardPanel[i][j] = new JPanel();
+                container.add(opponentBoardPanel[i][j]);
+                opponentBoardPanel[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE);
+                opponentBoardPanel[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
                 if ((i == 0) ^ (j == 0)) {
-                    opponentBoard[i][j].setBackground(Color.GRAY);
+                    opponentBoardPanel[i][j].setBackground(Color.GRAY);
                     if (i == 0) {
                         coordLabels1[j - 1] = new JLabel((char) (j + 64) + "");
-                        opponentBoard[i][j].add(coordLabels1[j - 1]);
+                        opponentBoardPanel[i][j].add(coordLabels1[j - 1]);
                     }
                     if (j == 0) {
                         coordLabels1[i + 9] = new JLabel(i + "");
-                        opponentBoard[i][j].add(coordLabels1[i + 9]);
+                        opponentBoardPanel[i][j].add(coordLabels1[i + 9]);
                     }
                 } else {
-                    opponentBoard[i][j].setBackground(Color.DARK_GRAY);
+                    opponentBoardPanel[i][j].setBackground(Color.DARK_GRAY);
                 }
-                opponentBoard[i][j].setVisible(true);
+                opponentBoardPanel[i][j].setVisible(true);
             }
         }
-        opponentBoard[0][0].setBackground(Color.BLACK);
+        opponentBoardPanel[0][0].setBackground(Color.BLACK);
 
         frame.setVisible(true);
         container.setVisible(true);
 
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 11; j++) {
-                yourBoard[i][j] = new JPanel();
-                container.add(yourBoard[i][j]);
-                yourBoard[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE
+        for (int i = 0; i < NUM_X_TILES; i++) {
+            for (int j = 0; j < NUM_Y_TILES; j++) {
+                yourBoardPanel[i][j] = new JPanel();
+                container.add(yourBoardPanel[i][j]);
+                yourBoardPanel[i][j].setLocation(i + i * SQ_SIZE, j + j * SQ_SIZE
                         + BOARD_SEPARATION_VERTICAL);
-                yourBoard[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
+                yourBoardPanel[i][j].setSize(new Dimension(SQ_SIZE, SQ_SIZE));
                 if ((i == 0) ^ (j == 0)) {
-                    yourBoard[i][j].setBackground(Color.GRAY);
+                    yourBoardPanel[i][j].setBackground(Color.GRAY);
                     if (i == 0) {
                         coordLabels2[j - 1] = new JLabel((char) (j + 64) + "");
-                        yourBoard[i][j].add(coordLabels2[j - 1]);
+                        yourBoardPanel[i][j].add(coordLabels2[j - 1]);
                     }
                     if (j == 0) {
                         coordLabels2[i + 9] = new JLabel(i + "");
-                        yourBoard[i][j].add(coordLabels2[i + 9]);
+                        yourBoardPanel[i][j].add(coordLabels2[i + 9]);
                     }
                 } else {
-                    yourBoard[i][j].setBackground(Color.DARK_GRAY);
+                    yourBoardPanel[i][j].setBackground(Color.DARK_GRAY);
                 }
-                yourBoard[i][j].setVisible(true);
+                yourBoardPanel[i][j].setVisible(true);
             }
         }
-        yourBoard[0][0].setBackground(Color.BLACK);
+        yourBoardPanel[0][0].setBackground(Color.BLACK);
 
     }
 
     private void initializePlayerShips(int[][] ships) {
+        System.out.println("------------");
         for(int i=0; i<7; i++){
             for(int j=0; j<3; j++){
                 System.out.print(ships[i][j]+ " ");
@@ -584,8 +660,8 @@ public class Display {
     private void updateProbabilityBoard() {
         TileStatus[][] b = p2.getPlayerStatusBoard();
         Color c = new Color(0);
-        for (int i = 1; i < 15; i++) {
-            for (int j = 1; j < 11; j++) {
+        for (int i = 1; i < NUM_X_TILES; i++) {
+            for (int j = 1; j < NUM_Y_TILES; j++) {
                 switch (b[j][i]) {
                     case HIT:
                         c = Color.RED;
@@ -608,8 +684,8 @@ public class Display {
     // private void updateProbabilityBoard() {
     // TileStatus[][] b = p2.getPlayerStatusBoard();
     // Color c = new Color(0);
-    // for (int i = 1; i < 15; i++) {
-    // for (int j = 1; j < 11; j++) {
+    // for (int i = 1; i < NUM_X_TILES; i++) {
+    // for (int j = 1; j < NUM_Y_TILES; j++) {
     // switch (b[j][i]) {
     // case HIT:
     // c = Color.RED;
@@ -649,9 +725,9 @@ public class Display {
 
     private void updateOpponentBoard() {
 
-        for (int i = 1; i < 15; i++) {
-            for (int j = 1; j < 11; j++) {
-                opponentBoard[i][j].setBackground(updateOpponentBoardHelper(i, j));
+        for (int i = 1; i < NUM_X_TILES; i++) {
+            for (int j = 1; j < NUM_Y_TILES; j++) {
+                opponentBoardPanel[i][j].setBackground(updateOpponentBoardHelper(i, j));
             }
         }
     }
@@ -695,14 +771,20 @@ public class Display {
     }
 
     private void updateYourBoard() {
-        for (int i = 1; i < 15; i++) {
-            for (int j = 1; j < 11; j++) {
-                yourBoard[i][j].setBackground(updateYourBoardHelper(i, j));
+        for (int i = 1; i < NUM_X_TILES; i++) {
+            for (int j = 1; j < NUM_Y_TILES; j++) {
+                yourBoardPanel[i][j].setBackground(updateYourBoardHelper(i, j));
             }
         }
         frame.repaint();
     }
-
+    /**
+     * LIKELY SHOULD BE CHANGED TO USE yourBoard[][][] instead<br />
+     * HOWEVER, not sure how that would handle the game progression, needs consideration
+     * @param i
+     * @param j
+     * @return
+     */
     private Color updateYourBoardHelper(int i, int j) {
         if (i == 0 && j == 0) {
             return Color.BLACK;
@@ -777,8 +859,36 @@ public class Display {
                 System.exit(1);
                 return Color.DARK_GRAY;
             }
-        } else
-            return Color.DARK_GRAY;
+        } else{
+            Color c = Color.DARK_GRAY;
+            switch (yourBoard[i][j][0]) {
+                case CR:
+                    if(yourBoard[i][j][1]==Statuses.AC1){
+                        c = AIRCRAFT1_COLOR;
+                    }else if(yourBoard[i][j][1]==Statuses.AC2){
+                        c = AIRCRAFT2_COLOR;
+                    }else{
+                        c = CARRIER_COLOR;
+                    }
+                    break;
+                case BS:
+                    c = BATTLESHIP_COLOR;
+                    break;
+                case DES:
+                    c = DESTROYER_COLOR;
+                    break;
+                case SUB:
+                    c = SUBMARINE_COLOR;
+                    break;
+                case PB:
+                    c = PATROLBOAT_COLOR;
+                    break;
+                default:
+                    c = Color.DARK_GRAY;
+                    break;
+            }
+            return c;
+        }
     }
 
     /**
@@ -846,5 +956,9 @@ public class Display {
 
     private enum CurrentShip {
         CARRIER, AIRCRAFT1, AIRCRAFT2, BATTLESHIP, DESTROYER, SUBMARINE, PATROLBOAT
+    }
+    
+    private enum Statuses {
+        SUBSCAN, SUNK, BLACKSPACE, TOP_OR_LEFT, CR, BS, DES, SUB, PB, AC1, AC2, UNKNOWN
     }
 }
