@@ -309,7 +309,7 @@ public class Display {
                                     }// 0 if horizontal, 1
                                                                                // if vertical
                                 }
-                                printYourBoard();
+//                                printYourBoard();
 //                                nextShip(currentShip); //this should only be called if ship placement is valid when clicked
                             } else {
                                 yourBoardPanel[xx][yy].setBackground(Color.YELLOW);
@@ -458,42 +458,7 @@ public class Display {
         container.setVisible(true);
     }
     
-    private void printYourBoard(){
-            for(int j = 0; j < NUM_Y_TILES; j++){
-                for(int i =0; i< NUM_X_TILES; i++){
-                char c = 'x';
-                switch (yourBoard[i][j][0]) {
-                    case CR:
-                        if(yourBoard[i][j][1]==Statuses.AC1){
-                            c = '@';
-                        }else if(yourBoard[i][j][1]==Statuses.AC2){
-                            c = '#';
-                        }else{
-                            c = 'C';
-                        }
-                        break;
-                    case BS:
-                        c = 'B';
-                        break;
-                    case DES:
-                        c = 'D';
-                        break;
-                    case SUB:
-                        c = 'S';
-                        break;
-                    case PB:
-                        c = 'P';
-                        break;
-                    default:
-                        c = 'X';
-                        break;
-                }
-                System.out.print(c + " ");
-            }
-            System.out.println();
-        }
-    }
-
+    
     private void initializeProbabilitiesBoard() {
         if (ai.hasProbabilities()) {
             aiProbabilities = ai.getProbabilities();
@@ -961,4 +926,41 @@ public class Display {
     private enum Statuses {
         SUBSCAN, SUNK, BLACKSPACE, TOP_OR_LEFT, CR, BS, DES, SUB, PB, AC1, AC2, UNKNOWN
     }
+    
+    private void printYourBoard(){
+        for(int j = 0; j < NUM_Y_TILES; j++){
+            for(int i =0; i< NUM_X_TILES; i++){
+            char c = 'x';
+            switch (yourBoard[i][j][0]) {
+                case CR:
+                    if(yourBoard[i][j][1]==Statuses.AC1){
+                        c = '@';
+                    }else if(yourBoard[i][j][1]==Statuses.AC2){
+                        c = '#';
+                    }else{
+                        c = 'C';
+                    }
+                    break;
+                case BS:
+                    c = 'B';
+                    break;
+                case DES:
+                    c = 'D';
+                    break;
+                case SUB:
+                    c = 'S';
+                    break;
+                case PB:
+                    c = 'P';
+                    break;
+                default:
+                    c = 'X';
+                    break;
+            }
+            System.out.print(c + " ");
+        }
+        System.out.println();
+    }
+}
+
 }

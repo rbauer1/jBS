@@ -30,6 +30,7 @@ public class Driver {
 	private static TestObject testObject;
 
 	public static void testRun(int numRuns) throws IOException {
+		long timeTotal = System.currentTimeMillis();
 		for (int i = 0; i < numRuns; i++) {
 			Display d = null;
 			if(testObject.isDisplayGUI()){
@@ -48,7 +49,9 @@ public class Driver {
 			    p2 = d.getPlayer();
 			}
 			initialize();
-			d.setPlayersAndAI(p2, p1, ai1);
+			if(testObject.isDisplayGUI()){
+				d.setPlayersAndAI(p2, p1, ai1);
+			}
 			while (!gameOver()) {
 			    long time=System.currentTimeMillis();
 			    while(System.currentTimeMillis()-time<testObject.getTurnDelay());
@@ -89,6 +92,7 @@ public class Driver {
 					.println("Average Turns per win: " + AI2average / AI2wins);
 		}
 		}
+		System.out.println("Total run time = " + (((System.currentTimeMillis()-timeTotal)/1000)/60) + " minutes and "  + (((System.currentTimeMillis()-timeTotal)/1000)%60) + " seconds");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -116,57 +120,40 @@ public class Driver {
 	}
 
 	public static void initialize() throws IOException {
-	    initializeShips();
-		Scanner sc = new Scanner(new File("shipsTest5.txt"));
-		String[] input = sc.nextLine().split(" ");
-		AircraftCarrier ac = new AircraftCarrier(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Battleship bs = new Battleship(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Destroyer de = new Destroyer(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Submarine sub = new Submarine(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		PatrolBoat pb = new PatrolBoat(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]));
-		input = sc.nextLine().split(" ");
-		Aircraft a1 = new Aircraft(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]), 1);
-		input = sc.nextLine().split(" ");
-		Aircraft a2 = new Aircraft(Integer.parseInt(input[0]),
-				Integer.parseInt(input[1]), Integer.parseInt(input[2]), 2);
+		int shipInfo[][] = initializeShips();
+		AircraftCarrier ac = new AircraftCarrier(shipInfo[0][0],
+				shipInfo[0][1], shipInfo[0][2]);
+		Battleship bs = new Battleship(shipInfo[1][0], shipInfo[1][1],
+				shipInfo[1][2]);
+		Destroyer de = new Destroyer(shipInfo[2][0], shipInfo[2][1],
+				shipInfo[2][2]);
+		Submarine sub = new Submarine(shipInfo[3][0], shipInfo[3][1],
+				shipInfo[3][2]);
+		PatrolBoat pb = new PatrolBoat(shipInfo[4][0], shipInfo[4][1],
+				shipInfo[4][2]);
+		Aircraft a1 = new Aircraft(shipInfo[5][0], shipInfo[5][1],
+				shipInfo[5][2], 1);
+		Aircraft a2 = new Aircraft(shipInfo[6][0], shipInfo[6][1],
+				shipInfo[6][2], 2);
 		Ships[] ships = { ac, bs, de, sub, pb, a1, a2 };
 		Board b1 = new Board(ships);
 		// System.out.println();
 		p1 = new Player(b1, true, ships);
 		if(!testObject.isPlayerIncluded()){
-		    initializeShips();
-	        Scanner sc2 = new Scanner(new File("shipsTest5.txt"));
-	        String[] input2 = sc2.nextLine().split(" ");
-	        AircraftCarrier ac2 = new AircraftCarrier(Integer.parseInt(input2[0]),
-	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
-	        input2 = sc2.nextLine().split(" ");
-	        Battleship bs2 = new Battleship(Integer.parseInt(input2[0]),
-	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
-	        input2 = sc2.nextLine().split(" ");
-	        Destroyer de2 = new Destroyer(Integer.parseInt(input2[0]),
-	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
-	        input2 = sc2.nextLine().split(" ");
-	        Submarine sub2 = new Submarine(Integer.parseInt(input2[0]),
-	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
-	        input2 = sc2.nextLine().split(" ");
-	        PatrolBoat pb2 = new PatrolBoat(Integer.parseInt(input2[0]),
-	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]));
-	        input2 = sc2.nextLine().split(" ");
-	        Aircraft a12 = new Aircraft(Integer.parseInt(input2[0]),
-	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]), 1);
-	        input2 = sc2.nextLine().split(" ");
-	        Aircraft a22 = new Aircraft(Integer.parseInt(input2[0]),
-	                Integer.parseInt(input2[1]), Integer.parseInt(input2[2]), 2);
+			AircraftCarrier ac2 = new AircraftCarrier(shipInfo[0][0],
+					shipInfo[0][1], shipInfo[0][2]);
+			Battleship bs2 = new Battleship(shipInfo[1][0], shipInfo[1][1],
+					shipInfo[1][2]);
+			Destroyer de2 = new Destroyer(shipInfo[2][0], shipInfo[2][1],
+					shipInfo[2][2]);
+			Submarine sub2 = new Submarine(shipInfo[3][0], shipInfo[3][1],
+					shipInfo[3][2]);
+			PatrolBoat pb2 = new PatrolBoat(shipInfo[4][0], shipInfo[4][1],
+					shipInfo[4][2]);
+			Aircraft a12 = new Aircraft(shipInfo[5][0], shipInfo[5][1],
+					shipInfo[5][2], 1);
+			Aircraft a22 = new Aircraft(shipInfo[6][0], shipInfo[6][1],
+					shipInfo[6][2], 2);
 	        Ships[] ships2 = { ac2, bs2, de2, sub2, pb2, a12, a22};
 	        Board b2 = new Board(ships2);
 	        p2 = new Player(b2, true, ships2);
@@ -197,6 +184,9 @@ public class Driver {
 		case AI4_01:
             ai1 = new AI4_01(p2, p1);
             break;
+		case AI4_02:
+            ai1 = new AI4_02(p2, p1);
+            break;
 		case AI4:
 			ai1 = new AI4(p2, p1);
 			break;
@@ -205,6 +195,9 @@ public class Driver {
 			break;
 		case AI4_11:
             ai1 = new AI4_11(p2, p1);
+            break;
+		case AI4_12:
+            ai1 = new AI4_12(p2, p1);
             break;
 		}
 		if (!testObject.isPlayerIncluded()) {
@@ -230,6 +223,9 @@ public class Driver {
 			case AI4_01:
                 ai2 = new AI4_01(p1, p2);
                 break;
+			case AI4_02:
+                ai2 = new AI4_02(p1, p2);
+                break;
 			case AI4:
 				ai2 = new AI4(p1, p2);
 				break;
@@ -239,13 +235,16 @@ public class Driver {
 			case AI4_11:
                 ai2 = new AI4_11(p1, p2);
                 break;
+			case AI4_12:
+                ai2 = new AI4_12(p1, p2);
+                break;
 			}
 		}
 
 	}
 
 	public enum AIName {
-		NONE, AI, AI2, AI3, AI3_1, AI4_0, AI4_01, AI4, AI4_1, AI4_11
+		NONE, AI, AI2, AI3, AI3_1, AI4_0, AI4_01, AI4_02, AI4, AI4_1, AI4_11, AI4_12
 	}
 
 	/**
@@ -437,8 +436,7 @@ public class Driver {
 	 * This method should probably move to a different class
 	 * @throws IOException
 	 */
-	public static void initializeShips() throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter("shipsTest5.txt"));
+	public static int[][] initializeShips() throws IOException {
         int cols = 14;
         int rows = 10;
         int[][] airLocationForWrite = new int[2][2]; // aircraft 1 is index
@@ -446,6 +444,7 @@ public class Driver {
         // the second dimension holds first the y coordinate, then the x
         // coordinate of the aircraft
         int[][] tempBoard = new int[rows][cols];
+        int[][] shipPositionMatrix = new int[7][3];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 tempBoard[i][j] = 0;
@@ -496,15 +495,22 @@ public class Driver {
                     }
 
                 }
-                bw.write((y + 1) + " " + (x + 1) + " " + orientation + "\n");
+                shipPositionMatrix[currentShip][0] = y + 1;
+                shipPositionMatrix[currentShip][1] = x + 1;
+                shipPositionMatrix[currentShip][2] = orientation;
                 currentShip++;
             } else {
                 flag = false;
             }
         }
-        bw.write(airLocationForWrite[0][0] + " " + airLocationForWrite[0][1] + " " + 0 + "\n");
-        bw.write(airLocationForWrite[1][0] + " " + airLocationForWrite[1][1] + " " + 0);
-        bw.close();
+        shipPositionMatrix[currentShip][0] = airLocationForWrite[0][0];
+        shipPositionMatrix[currentShip][1] = airLocationForWrite[0][1];
+        shipPositionMatrix[currentShip][2] = 0;
+        currentShip++;
+        shipPositionMatrix[currentShip][0] = airLocationForWrite[1][0];
+        shipPositionMatrix[currentShip][1] = airLocationForWrite[1][1];
+        shipPositionMatrix[currentShip][2] = 0;
+        return shipPositionMatrix;
         // below is code for printing the board
         // for (int i = 0; i < rows; i++) {
         // for (int j = 0; j < cols; j++) {

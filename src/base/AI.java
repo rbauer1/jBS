@@ -1,6 +1,5 @@
 package base;
 
-import java.io.IOException;
 
 public interface AI {
 	void attack();
