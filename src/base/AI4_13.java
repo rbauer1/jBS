@@ -14,9 +14,9 @@ import base.Board.TileStatus;
 
 /**
  * 
- * 8/28/13
+ * 7/10/13
  * 
- * @version 4.1.2
+ * @version 4.1.1
  * @author rbauer
  * 
  *         AI 4_1, Torpedoes Number of Wins: 51914 Average Turns per win: 82 AI 4_1, Torpedoes
@@ -25,10 +25,10 @@ import base.Board.TileStatus;
  *         AI 4_11, Torpedoes Number of Wins: 52069 Average Turns per win: 82 AI 4_1, Torpedoes
  *         Number of Wins: 47931 Average Turns per win: 82
  */
-public class AI4_12 implements AI {
+public class AI4_13 implements AI {
     private Player pOther;
     private Player pThis;
-    private String name = "AI 4_12, Torpedoes * 0.5";
+    private String name = "AI 4_11, Torpedoes";
     // 0 for untouched, 1 for hit, -1 for miss,
     // -2 for sunken ships, -4 for subscan, -3 for deadspace
     private Statuses[][] hits;
@@ -58,7 +58,7 @@ public class AI4_12 implements AI {
      * @param pThis This Player
      * @throws IOException
      */
-    public AI4_12(Player pOther, Player pThis) throws IOException {
+    public AI4_13(Player pOther, Player pThis) throws IOException {
         this.pOther = pOther;
         this.pThis = pThis;
         otherShipsSunk = new boolean[5];
@@ -219,13 +219,8 @@ public class AI4_12 implements AI {
                         dynamicProb[i][j][0][k] = -1;
                         dynamicProb[i][j][1][k] = -1;
                     } else {
-                    	if((i+j)%2==0){
-                    		dynamicProb[i][j][0][k] = 0;
-                            dynamicProb[i][j][1][k] = 0;
-                    	}else{
                         dynamicProb[i][j][0][k] = Integer.parseInt(tempS[j - 1]);
                         dynamicProb[i][j][1][k] = dynamicProb[i][j][0][k];
-                    	}
                     }
                 }
             }
@@ -663,8 +658,9 @@ public class AI4_12 implements AI {
             }
         } else {
             if (pos[2] == 2) {
-                // check if there is a pre-existing subscan with possible ships
-                // located then check if a ship has been sunk in that
+                // check if there is a preexising subscan with possible ships
+                // located
+                // then check if a ship has been sunk in that
                 if (!pThis.getSub().isThisShipSunk() && lastSubScan.getRelevance()
                         && lastSubScan.update(hits)) {
                     subScan(lastSubScan.getCenterCoords()[0], lastSubScan.getCenterCoords()[1],

@@ -1,9 +1,13 @@
 package base;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
@@ -11,7 +15,10 @@ import java.awt.event.MouseWheelListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import ships.Aircraft;
 import ships.AircraftCarrier;
@@ -44,10 +51,10 @@ public class Display {
             "images/dest1p.png", "images/dest2p.png", "images/sub1p.png", "images/sub2p.png",
             "images/subsp.png", "images/rec1p.png", "images/rec2p.png", "images/rec1p.png",
             "images/rec2p.png", "images/moveR1p.png", "images/moveR2p.png"};
-    private final int FRAME_HEIGHT = 800;
+    private final int FRAME_HEIGHT = 730;
     private final int FRAME_WIDTH = 1000;
     private final int SQ_SIZE = 30;
-    private final int BOARD_SEPARATION_VERTICAL = 400;
+    private final int BOARD_SEPARATION_VERTICAL = 350;
     private final int BOARD_SEPARATION_HORIZONTAL = 500;
     private final Color CARRIER_COLOR = new Color(0, 255, 0);
     private final Color AIRCRAFT1_COLOR = new Color(200, 0, 255);
@@ -73,7 +80,9 @@ public class Display {
     private boolean horizontalOrientation = true;
     private boolean validShipLocation = false;
     private CurrentShip currentShip = CurrentShip.CARRIER;
+    private TurnObject playerTurnObject;
     public Player p = null;
+    
 
     public void setPlayersAndAI(Player p2, Player p1, AI ai) {
         this.ai = ai;
@@ -83,6 +92,8 @@ public class Display {
     }
 
     public Display(boolean playerIncluded) {
+    	playerTurnObject = new TurnObject(p2);
+    	
         frame = new JFrame();
         frame.setBounds(new Rectangle(FRAME_WIDTH, FRAME_HEIGHT));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,7 +110,7 @@ public class Display {
                 }
             }
         });
-
+        
         yourBoard = new Statuses[NUM_X_TILES][NUM_Y_TILES][3];
         
         yourBoardPanel = new JPanel[NUM_X_TILES][NUM_Y_TILES];
@@ -144,39 +155,53 @@ public class Display {
 
                         @Override
                         public void mouseClicked(MouseEvent arg0) {
-                            opponentBoardPanel[xx][yy].setBackground(Color.YELLOW);
-                            if ((lastClickedOpponentX != 0 && lastClickedOpponentY != 0)
-                                    ^ (lastClickedOpponentX == xx && lastClickedOpponentY == yy)) {
-                                opponentBoardPanel[lastClickedOpponentX][lastClickedOpponentY]
-                                        .setBackground(updateOpponentBoardHelper(
-                                                lastClickedOpponentX, lastClickedOpponentY));
-                            }
-                            lastClickedOpponentX = xx;
-                            lastClickedOpponentY = yy;
+							if (!shipsNotPlaced) {
+								new PopupListener(arg0.getComponent(), arg0.getX(), arg0.getY(), playerTurnObject);
+								opponentBoardPanel[xx][yy].setBackground(Color.YELLOW);
+								if ((lastClickedOpponentX != 0 && lastClickedOpponentY != 0)
+										^ (lastClickedOpponentX == xx && lastClickedOpponentY == yy)) {
+									opponentBoardPanel[lastClickedOpponentX][lastClickedOpponentY]
+											.setBackground(updateOpponentBoardHelper(lastClickedOpponentX,lastClickedOpponentY));
+
+								}
+								lastClickedOpponentX = xx;
+								lastClickedOpponentY = yy;
+								playerTurnObject.setxTile(xx);
+								playerTurnObject.setyTile(yy);
+								System.out.println(playerTurnObject.toString());
+							}
                         }
 
                         @Override
                         public void mouseEntered(MouseEvent arg0) {
-                            if (!opponentBoardPanel[xx][yy].getBackground().equals(Color.YELLOW))
-                                opponentBoardPanel[xx][yy].setBackground(updateOpponentBoardHelper(xx,
-                                        yy).darker());
+                        	if(!shipsNotPlaced){
+                        		if (!opponentBoardPanel[xx][yy].getBackground().equals(Color.YELLOW))
+                        			opponentBoardPanel[xx][yy].setBackground(updateOpponentBoardHelper(xx,
+                        					yy).darker());
+                        	}
                         }
 
                         @Override
                         public void mouseExited(MouseEvent arg0) {
+                        	if(!shipsNotPlaced){
                             if (!opponentBoardPanel[xx][yy].getBackground().equals(Color.YELLOW))
                                 opponentBoardPanel[xx][yy].setBackground(updateOpponentBoardHelper(xx,
                                         yy));
+                        	}
                         }
 
                         @Override
                         public void mousePressed(MouseEvent arg0) {
+                        	if(!shipsNotPlaced){
                             opponentBoardPanel[xx][yy].setBackground(new Color(175, 175, 0));
+                        	}
                         }
 
                         @Override
                         public void mouseReleased(MouseEvent arg0) {
+                        	if(!shipsNotPlaced){
                             opponentBoardPanel[xx][yy].setBackground(updateOpponentBoardHelper(xx, yy));
+                        	}
                         }
 
                     });
@@ -491,11 +516,21 @@ public class Display {
     }
 
     /**
-     * 
      * @return true if yes
      */
     public boolean arePlayerShipsInitialized() {
         return !shipsNotPlaced;
+    }
+    
+    /**
+     * Create a new TurnObject for the next turn. 
+     */
+    protected void createNewTurnObject(){
+    	playerTurnObject = new TurnObject(p2);
+    }
+    
+    protected TurnObject getTurnObject(){
+    	return playerTurnObject;
     }
 
     public Player getPlayer() {
@@ -646,6 +681,8 @@ public class Display {
             }
         }
     }
+    
+    
 
     // private void updateProbabilityBoard() {
     // TileStatus[][] b = p2.getPlayerStatusBoard();
@@ -958,9 +995,9 @@ public class Display {
                     break;
             }
             System.out.print(c + " ");
-        }
+            }
         System.out.println();
-    }
-}
-
+        }
+    }	
+    
 }
