@@ -1,13 +1,12 @@
 package base;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
@@ -15,10 +14,7 @@ import java.awt.event.MouseWheelListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import ships.Aircraft;
 import ships.AircraftCarrier;
@@ -36,6 +32,7 @@ public class Display {
     private AI ai = null;
     private JFrame frame;
     private Container container;
+    private JPanel messagePanel;
     private JPanel[][] yourBoardPanel;
     private JPanel[][] opponentBoardPanel;
     private JPanel[][] probabilitiesBoard;
@@ -53,6 +50,8 @@ public class Display {
             "images/rec2p.png", "images/moveR1p.png", "images/moveR2p.png"};
     private final int FRAME_HEIGHT = 730;
     private final int FRAME_WIDTH = 1000;
+    private final int NUM_X_TILES = 15;
+    private final int NUM_Y_TILES = 11;
     private final int SQ_SIZE = 30;
     private final int BOARD_SEPARATION_VERTICAL = 350;
     private final int BOARD_SEPARATION_HORIZONTAL = 500;
@@ -64,9 +63,13 @@ public class Display {
     private final Color SUBMARINE_COLOR = new Color(0, 255, 150);
     private final Color PATROLBOAT_COLOR = new Color(0, 255, 200);
 
-    private final int NUM_X_TILES = 15;
-    private final int NUM_Y_TILES = 11;
     private Statuses[][][] yourBoard;
+    /** Simply the label that reads "Messages" */
+    private JLabel messageLabel;
+    /** The label that actually holds the messages to be displayed" */
+    private JLabel message;
+    private Font messageLabelFont;
+    private Font messageFont;
     private int opX; // these are used for the mouse listener
     private int opY;
     private int yoX;
@@ -90,7 +93,38 @@ public class Display {
         this.p2 = p2;
         initializeProbabilitiesBoard();
     }
+    
+    protected void setMessage(String s){
+    	message.setText(s);
+    }
 
+    private void initializeMessagePanel(){
+    	int messagePanelPadding = 10;
+    	GridBagLayout gbl = new GridBagLayout();
+    	GridBagConstraints gbc = new GridBagConstraints();
+    	messagePanel = new JPanel();
+    	messagePanel.setLayout(gbl);
+    	messagePanel.setLocation(BOARD_SEPARATION_HORIZONTAL, 0);
+    	//+4 is because there are 4 more spaces (==pixels) horizontally than vertically
+    	messagePanel.setSize(FRAME_WIDTH-BOARD_SEPARATION_HORIZONTAL-SQ_SIZE-messagePanelPadding+4, FRAME_HEIGHT-BOARD_SEPARATION_VERTICAL-SQ_SIZE-messagePanelPadding);
+    	messagePanel.setBackground(Color.BLACK);
+    	messageLabelFont = new Font(Font.SERIF, Font.PLAIN, 28);
+    	messageLabel = new JLabel("Messages");
+    	messageLabel.setFont(messageLabelFont);
+    	messageLabel.setForeground(Color.GRAY);
+    	messageFont = new Font(Font.SERIF, Font.PLAIN, 20);
+    	message = new JLabel("TEST");
+    	message.setFont(messageFont);
+    	message.setForeground(Color.GRAY);
+    	gbc.anchor = GridBagConstraints.CENTER;
+    	gbc.gridx = 0;
+    	gbc.gridy = 0;
+    	messagePanel.add(messageLabel, gbc);
+    	gbc.gridy = 1;
+    	messagePanel.add(message, gbc);
+    	messagePanel.setVisible(true);
+    }
+    
     public Display(boolean playerIncluded) {
     	playerTurnObject = new TurnObject(p2);
     	
@@ -126,6 +160,8 @@ public class Display {
         }else{
             shipsNotPlaced = false;
         }
+        
+        
 
         for (int i = 0; i < NUM_X_TILES; i++) {
             for (int j = 0; j < NUM_Y_TILES; j++) {
@@ -168,7 +204,6 @@ public class Display {
 								lastClickedOpponentY = yy;
 								playerTurnObject.setxTile(xx);
 								playerTurnObject.setyTile(yy);
-								System.out.println(playerTurnObject.toString());
 							}
                         }
 
@@ -211,6 +246,10 @@ public class Display {
         }
         opponentBoardPanel[0][0].setBackground(Color.BLACK);
 
+        
+        initializeMessagePanel();
+        container.add(messagePanel);
+        
 
         yourBoard[0][0][0]=Statuses.BLACKSPACE;
         yourBoard[0][0][1]=Statuses.BLACKSPACE;

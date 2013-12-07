@@ -28,7 +28,7 @@ import base.Board.TileStatus;
 public class AI4_13 implements AI {
     private Player pOther;
     private Player pThis;
-    private String name = "AI 4_11, Torpedoes";
+    private String name = "AI 4_13, Torpedoes";
     // 0 for untouched, 1 for hit, -1 for miss,
     // -2 for sunken ships, -4 for subscan, -3 for deadspace
     private Statuses[][] hits;

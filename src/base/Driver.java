@@ -2,7 +2,6 @@ package base;
 
 import java.io.IOException;
 import java.util.Random;
-import java.util.Scanner;
 
 import ships.Aircraft;
 import ships.AircraftCarrier;
@@ -199,6 +198,9 @@ public class Driver {
 		case AI4_12:
             ai1 = new AI4_12(p2, p1);
             break;
+		case AI4_13:
+            ai1 = new AI4_13(p2, p1);
+            break;
 		}
 		if (!testObject.isPlayerIncluded()) {
 			switch (testObject.getSecondAIChosen()) {
@@ -238,13 +240,16 @@ public class Driver {
 			case AI4_12:
                 ai2 = new AI4_12(p1, p2);
                 break;
+			case AI4_13:
+                ai2 = new AI4_13(p1, p2);
+                break;
 			}
 		}
 
 	}
 
 	public enum AIName {
-		NONE, AI, AI2, AI3, AI3_1, AI4_0, AI4_01, AI4_02, AI4, AI4_1, AI4_11, AI4_12
+		NONE, AI, AI2, AI3, AI3_1, AI4_0, AI4_01, AI4_02, AI4, AI4_1, AI4_11, AI4_12, AI4_13
 	}
 
 	/**
@@ -253,8 +258,13 @@ public class Driver {
 	 * built for the game
 	 */
 	public static void printShipDestroyed(ShipType shipType) {
-		if(testObject.isDisplayShipsSunk()){
-			System.out.println("Enemy " + shipType + " has been sunk!");
+//		if(testObject.isDisplayShipsSunk()){
+//			System.out.println("Enemy " + shipType + " has been sunk!");
+//		}
+		if(p1.myTurn()){
+			d.setMessage("Player2's " + shipType + " has been sunk!");
+		}else{
+			d.setMessage("Player1's " + shipType + " has been sunk!");
 		}
 	}
 
@@ -263,12 +273,14 @@ public class Driver {
 //			System.out.println("PLAYER 2 WINS!!!");
 			AI2wins++;
 			AI2average += debugCount;
+			d.setMessage("Player2 Wins!");
 			return true;
 		}
 		if (!p2.isAlive()) {
 //			System.out.println("PLAYER 1 WINS!!!");
 			AI1wins++;
 			AI1average += debugCount;
+			d.setMessage("Player1 Wins!");
 			return true;
 		}
 		return false;
@@ -301,10 +313,6 @@ public class Driver {
 	public static void progressTurnOnePlayer() {
 		Player current;
 		Player other;
-		int x;
-		int y;
-		int config = 1;
-		int shipIndex;
 		boolean turnFinished = false;
 		if (p2.myTurn()) {
 			current = p2;
@@ -316,119 +324,11 @@ public class Driver {
 
 		if (p1.myTurn()) {
 			ai1.attack();
-//		} else {
-//			current.playerPrintBoard(other);
-//			System.out.println("Player " + (current.getID() ? 1 : 2));
-//			Scanner sc = new Scanner(System.in);
-//			while (!turnFinished) {
-//				System.out.print("Select Option: ");
-//				int choice = sc.nextInt();
-//				switch (choice) {
-//				case 1:
-//					System.out.print("x coord: ");
-//					x = sc.nextInt();
-//					System.out.print("y coord: ");
-//					y = sc.nextInt();
-//					if (Actions.attack(other, x, y) != -1) {
-//						turnFinished = true;
-//					}
-//					break;
-//
-//				case 2:
-//					System.out.println("AircraftCarrier = 0, Battleship = 1,"
-//							+ '\n' + "Destroyer = 2, Submarine = 3");
-//					System.out.print("Choose Ship: ");
-//					shipIndex = sc.nextInt();
-//					while (shipIndex < 0 || shipIndex > 3) {
-//						System.out.print("Choose Ship: ");
-//						shipIndex = sc.nextInt();
-//					}
-//					if (!current.getShip(shipIndex).canFireMissile()) {
-//						break;
-//					}
-//					if (shipIndex != 1) {
-//						System.out.print("Missile Type: ");
-//						config = sc.nextInt();
-//						while (config < 1 || config > 2) {
-//							System.out.print("Missile Type: ");
-//							config = sc.nextInt();
-//						}
-//					}
-//					System.out.print("x coord: ");
-//					x = sc.nextInt();
-//					System.out.print("y coord: ");
-//					y = sc.nextInt();
-//					if (current.getShip(shipIndex).fireMissile(other, x, y,
-//							config)[0][0]!=-1) {
-//						turnFinished = true;
-//					}
-//					break;
-//
-//				case 3:
-//					System.out
-//							.println("Sub scan = 3, Aircraft1 scan = 5, Aircraft2 scan = 6");
-//					// Insert actual choose ship after aircraft implemented
-//					shipIndex = sc.nextInt();
-//					if (shipIndex != 3 && shipIndex != 5 && shipIndex != 6) {
-//						break;
-//					}
-//					if (current.getShip(shipIndex).isThisShipSunk()) {
-//						break;
-//					}
-//					if (shipIndex == 5) {
-//						System.out.print("Scan configuration: ");
-//						config = sc.nextInt();
-//						if (current.getAir(1).scan(other, config) != -1) {
-//							turnFinished = true;
-//						}
-//					} else if (shipIndex == 6) {
-//						System.out.print("Scan configuration: ");
-//						config = sc.nextInt();
-//						if (current.getAir(2).scan(other, config) != -1) {
-//							turnFinished = true;
-//						}
-//					} else {
-//						System.out.print("x coord: ");
-//						x = sc.nextInt();
-//						System.out.print("y coord: ");
-//						y = sc.nextInt();
-//						if (current.getSub().scan(other, x, y) != -1) {
-//							turnFinished = true;
-//						}
-//					}
-//					break;
-//				case 4:
-//					System.out.println("Choose Aircraft to Move (1 or 2)");
-//					shipIndex = sc.nextInt();
-//					System.out.print("x coord: ");
-//					x = sc.nextInt();
-//					System.out.print("y coord: ");
-//					y = sc.nextInt();
-//					if (Actions.moveAir(current, shipIndex, x, y)) {
-//						turnFinished = true;
-//					}
-//					break;
-//				case 5:
-//					System.out
-//							.println("Choose Anti-Aircraft Firing Coordinates");
-//					System.out.print("x coord: ");
-//					x = sc.nextInt();
-//					System.out.print("y coord: ");
-//					y = sc.nextInt();
-//					if (Actions.antiAircraft(other, x, y)) {
-//						turnFinished = true;
-//					}
-//					break;
-//				default:
-//					System.out.println("No quitting!");
-//					turnFinished = false;
-//					break;
-//				}
-//			}
+//		
 		}else{
 			while(!turnReady){
 		        try {
-	                Thread.sleep(50); //might cause lag, may need to lower
+	                Thread.sleep(50); //might cause lag, may need to lower, or change altogether
 	            } catch (InterruptedException e) {
 	                // TODO Auto-generated catch block
 	                e.printStackTrace();
@@ -462,7 +362,7 @@ public class Driver {
 						break;
 					case BATTLESHIP:
 						if (current.getShip(1).fireMissile(other, newTurn.getxTile(), newTurn.getyTile(),
-								0)[0][0]!=-1) {
+								1)[0][0]!=-1) {
 							turnFinished = true;
 						}
 						break;
@@ -480,13 +380,13 @@ public class Driver {
 						break;
 					case SUB_V:
 						if (current.getShip(3).fireMissile(other, newTurn.getxTile(), newTurn.getyTile(),
-								1)[0][0]!=-1) {
+								2)[0][0]!=-1) {
 							turnFinished = true;
 						}
 						break;
 					case SUB_H:
 						if (current.getShip(3).fireMissile(other, newTurn.getxTile(), newTurn.getyTile(),
-								2)[0][0]!=-1) {
+								1)[0][0]!=-1) {
 							turnFinished = true;
 						}
 						break;

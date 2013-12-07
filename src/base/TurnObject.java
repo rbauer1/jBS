@@ -1,5 +1,10 @@
 package base;
 
+/**
+ * Stores all data relevant to a player's turn. Primarily used in the Display class, it should also be used by the AIs 
+ * @author Riley
+ *
+ */
 public class TurnObject {
 	private int xTile;
 	private int yTile;

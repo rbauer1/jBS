@@ -1,0 +1,110 @@
+//just to clear up the clutter on Driver somewhat. now replaced with the section that uses the TurnObject
+} else {
+//			current.playerPrintBoard(other);
+//			System.out.println("Player " + (current.getID() ? 1 : 2));
+//			Scanner sc = new Scanner(System.in);
+//			while (!turnFinished) {
+//				System.out.print("Select Option: ");
+//				int choice = sc.nextInt();
+//				switch (choice) {
+//				case 1:
+//					System.out.print("x coord: ");
+//					x = sc.nextInt();
+//					System.out.print("y coord: ");
+//					y = sc.nextInt();
+//					if (Actions.attack(other, x, y) != -1) {
+//						turnFinished = true;
+//					}
+//					break;
+//
+//				case 2:
+//					System.out.println("AircraftCarrier = 0, Battleship = 1,"
+//							+ '\n' + "Destroyer = 2, Submarine = 3");
+//					System.out.print("Choose Ship: ");
+//					shipIndex = sc.nextInt();
+//					while (shipIndex < 0 || shipIndex > 3) {
+//						System.out.print("Choose Ship: ");
+//						shipIndex = sc.nextInt();
+//					}
+//					if (!current.getShip(shipIndex).canFireMissile()) {
+//						break;
+//					}
+//					if (shipIndex != 1) {
+//						System.out.print("Missile Type: ");
+//						config = sc.nextInt();
+//						while (config < 1 || config > 2) {
+//							System.out.print("Missile Type: ");
+//							config = sc.nextInt();
+//						}
+//					}
+//					System.out.print("x coord: ");
+//					x = sc.nextInt();
+//					System.out.print("y coord: ");
+//					y = sc.nextInt();
+//					if (current.getShip(shipIndex).fireMissile(other, x, y,
+//							config)[0][0]!=-1) {
+//						turnFinished = true;
+//					}
+//					break;
+//
+//				case 3:
+//					System.out
+//							.println("Sub scan = 3, Aircraft1 scan = 5, Aircraft2 scan = 6");
+//					// Insert actual choose ship after aircraft implemented
+//					shipIndex = sc.nextInt();
+//					if (shipIndex != 3 && shipIndex != 5 && shipIndex != 6) {
+//						break;
+//					}
+//					if (current.getShip(shipIndex).isThisShipSunk()) {
+//						break;
+//					}
+//					if (shipIndex == 5) {
+//						System.out.print("Scan configuration: ");
+//						config = sc.nextInt();
+//						if (current.getAir(1).scan(other, config) != -1) {
+//							turnFinished = true;
+//						}
+//					} else if (shipIndex == 6) {
+//						System.out.print("Scan configuration: ");
+//						config = sc.nextInt();
+//						if (current.getAir(2).scan(other, config) != -1) {
+//							turnFinished = true;
+//						}
+//					} else {
+//						System.out.print("x coord: ");
+//						x = sc.nextInt();
+//						System.out.print("y coord: ");
+//						y = sc.nextInt();
+//						if (current.getSub().scan(other, x, y) != -1) {
+//							turnFinished = true;
+//						}
+//					}
+//					break;
+//				case 4:
+//					System.out.println("Choose Aircraft to Move (1 or 2)");
+//					shipIndex = sc.nextInt();
+//					System.out.print("x coord: ");
+//					x = sc.nextInt();
+//					System.out.print("y coord: ");
+//					y = sc.nextInt();
+//					if (Actions.moveAir(current, shipIndex, x, y)) {
+//						turnFinished = true;
+//					}
+//					break;
+//				case 5:
+//					System.out
+//							.println("Choose Anti-Aircraft Firing Coordinates");
+//					System.out.print("x coord: ");
+//					x = sc.nextInt();
+//					System.out.print("y coord: ");
+//					y = sc.nextInt();
+//					if (Actions.antiAircraft(other, x, y)) {
+//						turnFinished = true;
+//					}
+//					break;
+//				default:
+//					System.out.println("No quitting!");
+//					turnFinished = false;
+//					break;
+//				}
+//			}
